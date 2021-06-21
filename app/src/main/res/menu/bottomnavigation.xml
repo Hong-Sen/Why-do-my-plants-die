@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_alarm"
+        android:icon="@drawable/icon_bell"
+        android:title="알림" />
+
+    <item
+        android:id="@+id/navigation_search"
+        android:icon="@drawable/icon_search"
+        android:title="검색" />
+
+    <item
+        android:id="@+id/navigation_feed"
+        android:icon="@drawable/icon_home"
+        android:title="피드" />
+
+    <item
+        android:id="@+id/navigation_mbti"
+        android:icon="@drawable/icon_tree"
+        android:title="식물mbti" />
+
+    <item
+        android:id="@+id/navigation_settings"
+        android:icon="@drawable/icon_setting"
+        android:title="설정" />
+
+</menu>
