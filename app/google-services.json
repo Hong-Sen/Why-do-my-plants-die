@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "735626939606",
+    "project_id": "why-do-my-plants-die",
+    "storage_bucket": "why-do-my-plants-die.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:735626939606:android:67e61fe65f21dbaa4b0d77",
+        "android_client_info": {
+          "package_name": "kr.sswu.whydomyplantsdie"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "735626939606-uug3ehlq4irviregkh245cp0v1vi65uk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "kr.sswu.whydomyplantsdie",
+            "certificate_hash": "2ce2421cd1edb01bd846c62aaaec8933f1720b89"
+          }
+        },
+        {
+          "client_id": "735626939606-fuhnsbmjtj904si6g3gmfcddbsl4e4uq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDKp6CinGl8-si9JM2P3gc8xhpIHhNax5c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "735626939606-fuhnsbmjtj904si6g3gmfcddbsl4e4uq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
