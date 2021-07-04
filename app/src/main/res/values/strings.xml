@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">우리집 식물은 왜 죽을까?</string>
+    <string name="facebook_app_id">170795734960008</string>
+    <string name="fb_login_protocol_scheme">fb170795734960008</string>
 </resources>
