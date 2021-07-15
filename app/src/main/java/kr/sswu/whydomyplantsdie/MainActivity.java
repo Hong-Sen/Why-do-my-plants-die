@@ -1,13 +1,14 @@
 package kr.sswu.whydomyplantsdie;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-
+import android.Manifest;
 import android.os.Bundle;
 import android.view.MenuItem;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -17,11 +18,12 @@ import kr.sswu.whydomyplantsdie.Fragment.MbtiFragment;
 import kr.sswu.whydomyplantsdie.Fragment.SearchFragment;
 import kr.sswu.whydomyplantsdie.Fragment.SettingFragment;
 
+import static com.google.gson.internal.$Gson$Types.arrayOf;
+
 public class MainActivity extends AppCompatActivity {
 
+    BottomNavigationView bottomNavigationView;
     private FragmentManager fragmentManager = getSupportFragmentManager();
-     BottomNavigationView bottomNavigationView;
-
     private AlarmFragment alarmFragment = new AlarmFragment();
     private SearchFragment searchFragment = new SearchFragment();
     private FeedFragment feedFragment = new FeedFragment();
@@ -34,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         bottomNavigationView = findViewById(R.id.bottomNavi);
+
 
         //첫 화면 지정
         FragmentTransaction transaction = fragmentManager.beginTransaction();
