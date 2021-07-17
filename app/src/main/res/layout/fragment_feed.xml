@@ -7,8 +7,7 @@
     <androidx.appcompat.widget.Toolbar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:backgroundTint="#00000000"
-        android:gravity="left">
+        android:backgroundTint="#00000000">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -16,7 +15,7 @@
 
             <TextView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:text="Feed"
                 android:textColor="#246540"
                 android:textSize="30dp"
@@ -36,5 +35,10 @@
 
     </androidx.appcompat.widget.Toolbar>
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/feed_recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </androidx.recyclerview.widget.RecyclerView>
 
 </LinearLayout>
