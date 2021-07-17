@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +24,7 @@ import androidx.loader.content.CursorLoader;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
@@ -93,7 +95,6 @@ public class WritePostActivity extends AppCompatActivity {
                         intent.setType("image/*");
                         startActivityForResult(intent, PICK_IMAGE_FROM_ALBUM);
 
-                        imgCamera.setVisibility(View.INVISIBLE);
                         bottomSheetDialog.dismiss();
                     }
                 });
@@ -120,16 +121,16 @@ public class WritePostActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGE_FROM_ALBUM) {
             if (resultCode == RESULT_OK) {
                 try {
                     photoUrl = getRealPathFromUri(data.getData());
+
                     Glide.with(getApplicationContext())
                             .load(photoUrl)
                             .centerCrop()
                             .into(imgAddPhoto);
-
+                    imgCamera.setVisibility(View.INVISIBLE);
                 } catch (Exception e) {
 
                 }
@@ -137,6 +138,7 @@ public class WritePostActivity extends AppCompatActivity {
                 Toast.makeText(this, "사진 선택 취소", Toast.LENGTH_LONG).show();
             }
         }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     private String getRealPathFromUri(Uri uri) {
@@ -155,20 +157,22 @@ public class WritePostActivity extends AppCompatActivity {
         File file = new File(photoUrl);
         Uri contentUri = Uri.fromFile(file);
         StorageReference storageRef =
-                firebaseStorage.getReferenceFromUrl("gs://why-do-my-plants-die.appspot.com/").child("images").child(contentUri.getLastPathSegment());
+                firebaseStorage.getReferenceFromUrl("gs://why-do-my-plants-die.appspot.com/").child("feed").child(contentUri.getLastPathSegment());
         UploadTask uploadTask = storageRef.putFile(contentUri);
+
+        String imagePath = "https://firebasestorage.googleapis.com/v0/b/" + "why-do-my-plants-die.appspot.com"
+                + "/o/" + "feed%2F" + contentUri.getLastPathSegment().toString() + "?alt=media";
+
         uploadTask
                 .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
 
-                        Toast.makeText(WritePostActivity.this, "upload success",
+                        Toast.makeText(WritePostActivity.this, "업로드 성공",
                                 Toast.LENGTH_SHORT).show();
 
-                        @SuppressWarnings("VisibleForTests")
-                        String uri = taskSnapshot.getStorage().getDownloadUrl().toString();
                         //디비에 바인딩 할 위치 생성 및 컬렉션(테이블)에 데이터 집합 생성
-                        DatabaseReference images = firebaseDatabase.getReference().child("images").push();
+                        DatabaseReference images = firebaseDatabase.getReference().child("feed").push();
 
                         //시간 생성
                         Date date = new Date();
@@ -176,7 +180,7 @@ public class WritePostActivity extends AppCompatActivity {
                         ContentDTO contentDTO = new ContentDTO();
 
                         //이미지 주소
-                        contentDTO.imageUrl = uri.toString();
+                        contentDTO.imageUrl = imagePath;
                         //유저의 UID
                         contentDTO.uid = firebaseAuth.getCurrentUser().getUid();
                         //게시물의 설명
@@ -197,7 +201,7 @@ public class WritePostActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(@NonNull Exception e) {
 
-                        Toast.makeText(WritePostActivity.this, "upload fail",
+                        Toast.makeText(WritePostActivity.this, "업로드 실패",
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
