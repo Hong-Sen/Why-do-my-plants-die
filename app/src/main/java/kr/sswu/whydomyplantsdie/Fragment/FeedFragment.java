@@ -1,14 +1,11 @@
 package kr.sswu.whydomyplantsdie.Fragment;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,13 +15,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
@@ -143,6 +141,23 @@ public class FeedFragment extends Fragment {
                     .error(R.drawable.icon_close)
                     .into(binding.itemdetailpostPlantImage);
 
+            //좋아요 이미지
+            binding.itemdetailpostLike.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    likeEvent(finalPosition);
+                }
+            });
+            if(contentDTOs.get(position).LIKES.containsKey(FirebaseAuth.getInstance().getCurrentUser().getUid())){
+                binding.itemdetailpostLike.setImageResource(R.drawable.icon_after_like);
+            }
+            else{
+                binding.itemdetailpostLike.setImageResource(R.drawable.icon_before_like);
+            }
+
+            //좋아요 개수
+            binding.itemdetailpostLikeCnt.setText("좋아요 " + contentDTOs.get(position).likeCount + "개");
+
             // 설명란 유저 아이 텍스트
             String name[] = contentDTOs.get(position).userId.split("@");
             binding.itemdetailpostContentUserid.setText(name[0]);
@@ -150,14 +165,43 @@ public class FeedFragment extends Fragment {
             // 설명 텍스트
             binding.itemdetailpostContent.setText(contentDTOs.get(position).explain);
 
-            //좋아요 개수
-            binding.itemdetailpostLikeCnt.setText("좋아요 " + contentDTOs.get(position).likeCount + "개");
-
         }
 
         @Override
         public int getItemCount() {
             return contentDTOs.size();
+        }
+
+        private void likeEvent(int position){
+            final int finalPosition = position;
+            FirebaseDatabase.getInstance().getReference("feed").child(contentUidList.get(position))
+                    .runTransaction(new Transaction.Handler() {
+                        @NonNull
+                        @Override
+                        public Transaction.Result doTransaction(@NonNull MutableData currentData) {
+                            ContentDTO contentDTO = currentData.getValue(ContentDTO.class);
+                            String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                            if(contentDTO == null){
+                                return Transaction.success(currentData);
+                            }
+                            if(contentDTO.LIKES.containsKey(uid)){
+                                contentDTO.likeCount = contentDTO.likeCount - 1;
+                                contentDTO.LIKES.remove(uid);
+                            }
+                            else{
+                                contentDTO.likeCount = contentDTO.likeCount + 1;
+                                contentDTO.LIKES.put(uid, true);
+
+                            }
+                            currentData.setValue(contentDTO);
+                            return Transaction.success(currentData);
+                        }
+
+                        @Override
+                        public void onComplete(@Nullable DatabaseError error, boolean committed, @Nullable DataSnapshot currentData) {
+
+                        }
+                    });
         }
 
         private class CustomViewHolder extends RecyclerView.ViewHolder {
@@ -167,8 +211,7 @@ public class FeedFragment extends Fragment {
 
             CustomViewHolder(View itemView) {
                 super(itemView);
-
-                binding = DataBindingUtil.bind(itemView);
+                binding = DataBindingUtil.bind(itemView); //error 발생시 Invalidate Cashes/Restart 실행
             }
 
             ItemDetailPostBinding getBinding() {
