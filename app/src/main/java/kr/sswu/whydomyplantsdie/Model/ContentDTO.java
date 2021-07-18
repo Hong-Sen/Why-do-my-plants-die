@@ -11,7 +11,7 @@ public class ContentDTO {
     public String userId;
     public String timestamp;
     public int likeCount = 0;
-    public Map<String, Boolean> favorites = new HashMap<>();
+    public Map<String, Boolean> LIKES = new HashMap<>();
     public Map<String, Comment> comments;
 
     public static class Comment {
