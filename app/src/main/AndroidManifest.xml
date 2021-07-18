@@ -56,13 +56,25 @@
             </intent-filter>
         </activity>
         <activity android:name=".WritePostActivity" />
-        <activity android:name=".Login.SearchActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+        <activity android:name=".Login.SearchActivity" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
+        <activity android:name=".AlarmUploadActivity" />
+
+        <service android:name=".MyFirebaseMessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
-        </activity>
+        </service>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="kr.sswu.whydomyplantsdie.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/external" />
+        </provider>
     </application>
 
 </manifest>
