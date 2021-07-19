@@ -90,8 +90,8 @@ public class WritePostActivity extends AppCompatActivity {
                 view.findViewById(R.id.goGallery).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(Intent.ACTION_PICK);
-                        intent.setData(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                        Intent intent = new Intent();
+                        intent.setAction(Intent.ACTION_PICK);
                         intent.setType("image/*");
                         startActivityForResult(intent, PICK_IMAGE_FROM_ALBUM);
 
@@ -121,6 +121,7 @@ public class WritePostActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGE_FROM_ALBUM) {
             if (resultCode == RESULT_OK) {
                 try {
@@ -130,6 +131,7 @@ public class WritePostActivity extends AppCompatActivity {
                             .load(photoUrl)
                             .centerCrop()
                             .into(imgAddPhoto);
+
                     imgCamera.setVisibility(View.INVISIBLE);
                 } catch (Exception e) {
 
@@ -138,7 +140,6 @@ public class WritePostActivity extends AppCompatActivity {
                 Toast.makeText(this, "사진 선택 취소", Toast.LENGTH_LONG).show();
             }
         }
-        super.onActivityResult(requestCode, resultCode, data);
     }
 
     private String getRealPathFromUri(Uri uri) {
