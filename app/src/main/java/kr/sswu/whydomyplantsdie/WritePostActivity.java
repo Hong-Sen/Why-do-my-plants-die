@@ -180,6 +180,8 @@ public class WritePostActivity extends AppCompatActivity {
                         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                         ContentDTO contentDTO = new ContentDTO();
 
+                        //이미지 이름
+                        contentDTO.imageName = contentUri.getLastPathSegment().toString();
                         //이미지 주소
                         contentDTO.imageUrl = imagePath;
                         //유저의 UID

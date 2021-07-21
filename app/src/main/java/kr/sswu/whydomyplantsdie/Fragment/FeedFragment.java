@@ -1,11 +1,16 @@
 package kr.sswu.whydomyplantsdie.Fragment;
 
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -13,9 +18,13 @@ import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -24,6 +33,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+
 import java.util.ArrayList;
 
 import kr.sswu.whydomyplantsdie.Model.ContentDTO;
@@ -31,19 +42,24 @@ import kr.sswu.whydomyplantsdie.R;
 import kr.sswu.whydomyplantsdie.WritePostActivity;
 import kr.sswu.whydomyplantsdie.databinding.ItemDetailPostBinding;
 
+import static android.widget.Toast.LENGTH_SHORT;
+
 public class FeedFragment extends Fragment {
 
-    private FirebaseUser user;
+    private String user;
     private Button btn_addPost;
+    private FirebaseStorage firebaseStorage;
+    private FirebaseDatabase firebaseDatabase;
 
     public void DetailViewFragment() {
-        user = FirebaseAuth.getInstance().getCurrentUser();
+        user = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        ViewGroup rootView = (ViewGroup)inflater.inflate(R.layout.fragment_feed, container, false);
+        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_feed, container, false);
 
         btn_addPost = rootView.findViewById(R.id.btn_createPost);
         btn_addPost.setOnClickListener(new View.OnClickListener() {
@@ -54,21 +70,32 @@ public class FeedFragment extends Fragment {
             }
         });
 
-        RecyclerView recyclerView = (RecyclerView)rootView.findViewById(R.id.feed_recyclerview);
+        firebaseStorage = FirebaseStorage.getInstance();
+        firebaseDatabase = FirebaseDatabase.getInstance();
+
+        RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.feed_recyclerview);
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(rootView.getContext());
         mLayoutManager.setReverseLayout(true);
         mLayoutManager.setStackFromEnd(true);
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setAdapter(new DetailRecyclerViewAdapter());
+
+        SwipeRefreshLayout swipeRefreshLayout = rootView.findViewById(R.id.swipe_layout);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
         return rootView;
     }
 
-    private class DetailRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
+    private class DetailRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-        private ArrayList<ContentDTO> contentDTOs;
-        private ArrayList<String> contentUidList;
+        private final ArrayList<ContentDTO> contentDTOs;
+        private final ArrayList<String> contentUidList;
 
-        DetailRecyclerViewAdapter(){
+        DetailRecyclerViewAdapter() {
             contentDTOs = new ArrayList<>();
             contentUidList = new ArrayList<>();
 
@@ -78,7 +105,7 @@ public class FeedFragment extends Fragment {
                     contentDTOs.clear();
                     contentUidList.clear();
 
-                    for(DataSnapshot snapshot1 : snapshot.getChildren()){
+                    for (DataSnapshot snapshot1 : snapshot.getChildren()) {
                         contentDTOs.add(snapshot1.getValue(ContentDTO.class));
                         contentUidList.add(snapshot1.getKey());
                     }
@@ -137,6 +164,7 @@ public class FeedFragment extends Fragment {
             // 식물 이미지
             Glide.with(holder.itemView.getContext())
                     .load(contentDTOs.get(position).imageUrl)
+                    .fitCenter()
                     .placeholder(R.drawable.icon_loading)
                     .error(R.drawable.icon_close)
                     .into(binding.itemdetailpostPlantImage);
@@ -148,10 +176,9 @@ public class FeedFragment extends Fragment {
                     likeEvent(finalPosition);
                 }
             });
-            if(contentDTOs.get(position).LIKES.containsKey(FirebaseAuth.getInstance().getCurrentUser().getUid())){
+            if (contentDTOs.get(position).LIKES.containsKey(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
                 binding.itemdetailpostLike.setImageResource(R.drawable.icon_after_like);
-            }
-            else{
+            } else {
                 binding.itemdetailpostLike.setImageResource(R.drawable.icon_before_like);
             }
 
@@ -165,6 +192,66 @@ public class FeedFragment extends Fragment {
             // 설명 텍스트
             binding.itemdetailpostContent.setText(contentDTOs.get(position).explain);
 
+
+            LayoutInflater inflater = (LayoutInflater)requireActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View view = inflater.inflate(R.layout.bottomsheet_delete_post, null, false);
+            final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(getContext());
+            bottomSheetDialog.setContentView(view);
+
+
+
+            // more 버튼
+            user = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+
+            Log.d("FeedFragment", user + " ---- " + contentDTOs.get(position).userId);
+            binding.itemdetailpostMore.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(user.equals(contentDTOs.get(position).userId)){
+                        bottomSheetDialog.show();
+
+                        view.findViewById(R.id.txt_delete).setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                deleteContent(position);
+                                bottomSheetDialog.dismiss();
+
+                            }
+                        });
+                    }
+                }
+            });
+
+
+
+        }
+
+        private void deleteContent(int position){
+            firebaseStorage.getReference().child("feed").child(contentDTOs.get(position).imageName).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+
+                }
+            });
+
+            firebaseDatabase.getReference().child("feed").child(contentUidList.get(position)).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Toast.makeText(getContext(), "삭제 완료", LENGTH_SHORT).show();
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(getContext(), "삭제 실패", LENGTH_SHORT).show();
+                }
+            });
+
+
         }
 
         @Override
@@ -172,7 +259,7 @@ public class FeedFragment extends Fragment {
             return contentDTOs.size();
         }
 
-        private void likeEvent(int position){
+        private void likeEvent(int position) {
             final int finalPosition = position;
             FirebaseDatabase.getInstance().getReference("feed").child(contentUidList.get(position))
                     .runTransaction(new Transaction.Handler() {
@@ -181,14 +268,13 @@ public class FeedFragment extends Fragment {
                         public Transaction.Result doTransaction(@NonNull MutableData currentData) {
                             ContentDTO contentDTO = currentData.getValue(ContentDTO.class);
                             String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                            if(contentDTO == null){
+                            if (contentDTO == null) {
                                 return Transaction.success(currentData);
                             }
-                            if(contentDTO.LIKES.containsKey(uid)){
+                            if (contentDTO.LIKES.containsKey(uid)) {
                                 contentDTO.likeCount = contentDTO.likeCount - 1;
                                 contentDTO.LIKES.remove(uid);
-                            }
-                            else{
+                            } else {
                                 contentDTO.likeCount = contentDTO.likeCount + 1;
                                 contentDTO.LIKES.put(uid, true);
 
@@ -207,11 +293,11 @@ public class FeedFragment extends Fragment {
         private class CustomViewHolder extends RecyclerView.ViewHolder {
 
             //data binding
-            private ItemDetailPostBinding binding;
+            private ItemDetailPostBinding binding;  //error 발생시 Invalidate Cashes/Restart 실행
 
             CustomViewHolder(View itemView) {
                 super(itemView);
-                binding = DataBindingUtil.bind(itemView); //error 발생시 Invalidate Cashes/Restart 실행
+                binding = DataBindingUtil.bind(itemView);
             }
 
             ItemDetailPostBinding getBinding() {
