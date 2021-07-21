@@ -5,6 +5,7 @@ import java.util.Map;
 
 public class ContentDTO {
 
+    public String imageName;
     public String explain;
     public String imageUrl;
     public String uid;
