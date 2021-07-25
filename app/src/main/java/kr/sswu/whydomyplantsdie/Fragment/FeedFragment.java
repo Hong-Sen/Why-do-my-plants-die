@@ -37,6 +37,7 @@ import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.ArrayList;
 
+import kr.sswu.whydomyplantsdie.CommentActivity;
 import kr.sswu.whydomyplantsdie.Model.ContentDTO;
 import kr.sswu.whydomyplantsdie.R;
 import kr.sswu.whydomyplantsdie.WritePostActivity;
@@ -51,10 +52,9 @@ public class FeedFragment extends Fragment {
     private FirebaseStorage firebaseStorage;
     private FirebaseDatabase firebaseDatabase;
 
-    public void DetailViewFragment() {
-        user = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-    }
+//    public void DetailViewFragment() {
+//        user = FirebaseAuth.getInstance().getCurrentUser().getUid();
+//    }
 
     @Nullable
     @Override
@@ -185,20 +185,17 @@ public class FeedFragment extends Fragment {
             //좋아요 개수
             binding.itemdetailpostLikeCnt.setText("좋아요 " + contentDTOs.get(position).likeCount + "개");
 
-            // 설명란 유저 아이 텍스트
-            String name[] = contentDTOs.get(position).userId.split("@");
-            binding.itemdetailpostContentUserid.setText(name[0]);
+            // 설명란 유저 아이디 텍스트
+            binding.itemdetailpostContentUserid.setText(contentDTOs.get(position).userShortId);
 
             // 설명 텍스트
             binding.itemdetailpostContent.setText(contentDTOs.get(position).explain);
 
-
+            // 삭제 bottomsheet
             LayoutInflater inflater = (LayoutInflater)requireActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View view = inflater.inflate(R.layout.bottomsheet_delete_post, null, false);
             final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(getContext());
             bottomSheetDialog.setContentView(view);
-
-
 
             // more 버튼
             user = FirebaseAuth.getInstance().getCurrentUser().getEmail();
@@ -222,7 +219,21 @@ public class FeedFragment extends Fragment {
                 }
             });
 
+            // 댓글
+            binding.itemdetailpostComment.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(getContext(), CommentActivity.class);
+                    intent.putExtra("imageUid", contentUidList.get(finalPosition));
+                    intent.putExtra("destinationUid", contentDTOs.get(finalPosition).uid);
 
+                    //intent.putExtra("writerImgae", contentDTOs.get(finalPosition));
+                    intent.putExtra("writerId", contentDTOs.get(position).userShortId);
+                    intent.putExtra("writerExplain", contentDTOs.get(position).explain);
+
+                    startActivity(intent);
+                }
+            });
 
         }
 
