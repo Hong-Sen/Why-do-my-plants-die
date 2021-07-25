@@ -6,7 +6,6 @@
     android:layout_height="wrap_content"
     android:padding="15dp"
     android:orientation="vertical"
-    android:background="@drawable/curved_border"
     android:paddingBottom="10dp">
 
     <RelativeLayout

@@ -1,8 +1,10 @@
 package kr.sswu.whydomyplantsdie;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -42,6 +44,7 @@ import kr.sswu.whydomyplantsdie.Model.ContentDTO;
 public class WritePostActivity extends AppCompatActivity {
 
     private static final int PICK_IMAGE_FROM_ALBUM = 101;
+    private static final int CAPTURE_IMAGE = 102;
     final private static String TAG = "WritePost";
     private String photoUrl;
     private FirebaseStorage firebaseStorage;
@@ -50,6 +53,8 @@ public class WritePostActivity extends AppCompatActivity {
     private ImageView imgAddPhoto, btnClose, imgCamera;
     private EditText edtContent;
     private Button btnAddFeed;
+
+    Uri pictureUri;
 
 
     @Override
@@ -83,7 +88,8 @@ public class WritePostActivity extends AppCompatActivity {
                 view.findViewById(R.id.goCamera).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        //
+                        Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                        startActivityForResult(cameraIntent, CAPTURE_IMAGE);
                     }
                 });
 
@@ -140,6 +146,16 @@ public class WritePostActivity extends AppCompatActivity {
                 Toast.makeText(this, "사진 선택 취소", Toast.LENGTH_LONG).show();
             }
         }
+
+        if (requestCode == CAPTURE_IMAGE && resultCode == Activity.RESULT_OK && data.hasExtra("data")) {
+            Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+            if (bitmap != null) {
+                String path=String.valueOf(data.getData());
+                pictureUri = Uri.fromFile(new File(path));
+                Log.d(TAG, pictureUri.toString());
+                imgAddPhoto.setImageBitmap(bitmap);
+            }
+        }
     }
 
     private String getRealPathFromUri(Uri uri) {
@@ -190,6 +206,9 @@ public class WritePostActivity extends AppCompatActivity {
                         contentDTO.explain = edtContent.getText().toString();
                         //유저의 아이디
                         contentDTO.userId = firebaseAuth.getCurrentUser().getEmail();
+                        //유저의 아이디 앞부분
+                        String shortId[] = firebaseAuth.getCurrentUser().getEmail().split("@");
+                        contentDTO.userShortId = shortId[0];
                         //게시물 업로드 시간
                         contentDTO.timestamp = simpleDateFormat.format(date);
 
@@ -210,4 +229,5 @@ public class WritePostActivity extends AppCompatActivity {
                 });
     }
 }
+
 

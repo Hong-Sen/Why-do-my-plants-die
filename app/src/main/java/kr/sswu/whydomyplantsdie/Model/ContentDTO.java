@@ -10,13 +10,13 @@ public class ContentDTO {
     public String imageUrl;
     public String uid;
     public String userId;
+    public String userShortId;
     public String timestamp;
     public int likeCount = 0;
     public Map<String, Boolean> LIKES = new HashMap<>();
     public Map<String, Comment> comments;
 
     public static class Comment {
-
         public String uid;
         public String userId;
         public String comment;
