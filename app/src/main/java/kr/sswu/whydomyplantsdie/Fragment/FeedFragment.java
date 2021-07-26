@@ -52,10 +52,6 @@ public class FeedFragment extends Fragment {
     private FirebaseStorage firebaseStorage;
     private FirebaseDatabase firebaseDatabase;
 
-//    public void DetailViewFragment() {
-//        user = FirebaseAuth.getInstance().getCurrentUser().getUid();
-//    }
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -148,7 +144,6 @@ public class FeedFragment extends Fragment {
                                 Glide.with(holder.itemView.getContext())
                                         .load(url)
                                         .apply(new RequestOptions().circleCrop()).into(binding.itemdetailpostUserImgae);
-
                             }
                         }
 
@@ -200,7 +195,6 @@ public class FeedFragment extends Fragment {
             // more 버튼
             user = FirebaseAuth.getInstance().getCurrentUser().getEmail();
 
-            Log.d("FeedFragment", user + " ---- " + contentDTOs.get(position).userId);
             binding.itemdetailpostMore.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -224,11 +218,11 @@ public class FeedFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(getContext(), CommentActivity.class);
-                    intent.putExtra("imageUid", contentUidList.get(finalPosition));
+                    intent.putExtra("imageUid", contentUidList.get(position));
                     intent.putExtra("destinationUid", contentDTOs.get(finalPosition).uid);
 
                     //intent.putExtra("writerImgae", contentDTOs.get(finalPosition));
-                    intent.putExtra("writerId", contentDTOs.get(position).userShortId);
+                    intent.putExtra("writerShortId", contentDTOs.get(position).userShortId);
                     intent.putExtra("writerExplain", contentDTOs.get(position).explain);
 
                     startActivity(intent);

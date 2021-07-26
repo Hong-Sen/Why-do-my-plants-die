@@ -1,24 +1,32 @@
 package kr.sswu.whydomyplantsdie;
 
+import android.content.Context;
 import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -29,6 +37,9 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
 import kr.sswu.whydomyplantsdie.Model.ContentDTO;
+import kr.sswu.whydomyplantsdie.databinding.ItemCommentBinding;
+
+import static android.widget.Toast.LENGTH_SHORT;
 
 public class CommentActivity extends AppCompatActivity {
 
@@ -40,12 +51,13 @@ public class CommentActivity extends AppCompatActivity {
     private EditText message;
     private ImageView close;
     private RecyclerView recyclerView;
-    private FirebaseUser user;
+    private String user;
     private String destinationUid;
     private String imageUid;
     private String intentWirterId;
     private String intentWirterExplain;
     private String intentWirterImage;
+    private FirebaseDatabase firebaseDatabase;
 
 
     @Override
@@ -53,19 +65,19 @@ public class CommentActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_comment);
 
-        user = FirebaseAuth.getInstance().getCurrentUser();
+        user = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        firebaseDatabase = FirebaseDatabase.getInstance();
 
         destinationUid = getIntent().getStringExtra("destinationUid");
         imageUid = getIntent().getStringExtra("imageUid");
-        intentWirterId = getIntent().getStringExtra("writerId");
+        intentWirterId = getIntent().getStringExtra("writerShortId");
         intentWirterExplain = getIntent().getStringExtra("writerExplain");
         //intentWirterImage = getIntent().getStringExtra("writerImage");
 
         writerImage = (ImageView)findViewById(R.id.writer_image);
         writerId = (TextView)findViewById(R.id.writer_id);
+        writerExplain = (TextView)findViewById(R.id.writer_explain);
         //writerImage = (ImageView)findViewById(R.id.writer_image);
-        writerExplain = (TextView)findViewById(R.id.writer_explain);
-        writerExplain = (TextView)findViewById(R.id.writer_explain);
 
         writerId.setText(intentWirterId);
         writerExplain.setText(intentWirterExplain);
@@ -107,9 +119,11 @@ public class CommentActivity extends AppCompatActivity {
 
     class recyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         private ArrayList<ContentDTO.Comment> comments;
+        private  ArrayList<String> contentUidList;
 
         public recyclerViewAdapter(){
             comments = new ArrayList<>();
+            contentUidList = new ArrayList<>();
             FirebaseDatabase
                     .getInstance()
                     .getReference()
@@ -120,8 +134,10 @@ public class CommentActivity extends AppCompatActivity {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
                             comments.clear();
+                            contentUidList.clear();
                             for(DataSnapshot snapshot1 : snapshot.getChildren()){
                                 comments.add(snapshot1.getValue(ContentDTO.Comment.class));
+                                contentUidList.add(snapshot1.getKey());
                             }
                             notifyDataSetChanged();
                         }
@@ -142,6 +158,8 @@ public class CommentActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+            final ItemCommentBinding binding = ((CustomViewHolder)holder).getBinding();
+
             FirebaseDatabase
                     .getInstance()
                     .getReference()
@@ -153,10 +171,10 @@ public class CommentActivity extends AppCompatActivity {
 
                         @SuppressWarnings("VisibleForTests")
                         String url = snapshot.getValue().toString();
-                        ImageView profileImageView = ((CustomViewHolder) holder).userImage;
+
                         Glide.with(holder.itemView.getContext())
                                 .load(url)
-                                .apply(new RequestOptions().circleCrop()).into(profileImageView);
+                                .apply(new RequestOptions().circleCrop()).into(binding.itemcommentUserImage);
                     }
                 }
 
@@ -165,10 +183,54 @@ public class CommentActivity extends AppCompatActivity {
 
                 }
             });
-            String name[] = comments.get(position).userId.split("@");
-            ((CustomViewHolder)holder).userId.setText(name[0]);
-            ((CustomViewHolder)holder).comment.setText(comments.get(position).comment);
 
+            // 유저 short 아이디
+            String name[] = comments.get(position).userId.split("@");
+            binding.itemcommentUserId.setText(name[0]);
+
+            //유저 댓글
+            binding.itemcommentComment.setText(comments.get(position).comment);
+
+            // 삭제 bottomsheet
+            BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(CommentActivity.this);
+            View view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.bottomsheet_delete_post, (ViewGroup) findViewById(R.id.bottomsheet));
+            bottomSheetDialog.setContentView(view);
+
+            // 댓글 layout
+            binding.itemcommentLayout.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    if(user.equals(comments.get(position).userId)){
+                        bottomSheetDialog.show();
+
+                        view.findViewById(R.id.txt_delete).setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                deleteContent(position);
+                                bottomSheetDialog.dismiss();
+
+                            }
+                        });
+                    }
+                    return true;
+                }
+            });
+        }
+
+        private void deleteContent(int position){
+            firebaseDatabase.getReference().child("feed").child(imageUid).child("comments").child(contentUidList.get(position)).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Log.d("CommentActivity", "삭제완료");
+                    Toast.makeText(getApplicationContext(), "삭제 완료", LENGTH_SHORT).show();
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.d("CommentActivity", "삭제실패");
+                    Toast.makeText(getApplicationContext(), "삭제 실패", LENGTH_SHORT).show();
+                }
+            });
         }
 
         @Override
@@ -177,17 +239,14 @@ public class CommentActivity extends AppCompatActivity {
         }
 
         private class CustomViewHolder extends RecyclerView.ViewHolder{
-            public ImageView userImage;
-            public TextView userId;
-            public TextView comment;
+            
+            private ItemCommentBinding binding;
 
             public CustomViewHolder(@NonNull View itemView) {
                 super(itemView);
-
-                userImage = (ImageView) itemView.findViewById(R.id.itemcomment_user_image);
-                userId = (TextView) itemView.findViewById(R.id.itemcomment_user_id);
-                comment = (TextView)itemView.findViewById(R.id.itemcomment_comment);
+                binding = DataBindingUtil.bind(itemView);
             }
+            ItemCommentBinding getBinding() {return binding;}
         }
     }
 }
