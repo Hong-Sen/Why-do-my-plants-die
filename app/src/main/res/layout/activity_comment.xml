@@ -47,14 +47,16 @@
                 android:layout_margin="7.5dp"
                 android:textStyle="bold"
                 tools:text="글쓴 아이디"
-                android:textSize="15dp"/>
+                android:textSize="15dp"
+                android:textColor="@color/black"/>
 
             <TextView
                 android:id="@+id/writer_explain"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 tools:text="설명"
-                android:textSize="15dp"/>
+                android:textSize="15dp"
+                android:textColor="@color/black"/>
         </LinearLayout>
 
         <ImageView

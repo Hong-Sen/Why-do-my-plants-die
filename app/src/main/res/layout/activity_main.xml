@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -15,12 +16,12 @@
       android:id="@+id/bottomNavi"
       android:layout_width="350dp"
       android:layout_height="wrap_content"
-      android:layout_alignParentBottom="true"
-      android:layout_centerHorizontal="true"
-      android:layout_margin="20dp"
+      android:layout_gravity="center_horizontal"
+      android:layout_marginTop="590dp"
       app:itemIconTint="@drawable/menu_selector_color"
       android:background="@drawable/nav_background_curved"
       app:labelVisibilityMode="unlabeled"
-      app:menu="@menu/bottomnavigation"/>
+      app:menu="@menu/bottomnavigation"
+      app:layout_behavior="@string/hide_bottom_view_on_scroll_behavior"/>
 
-</RelativeLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
