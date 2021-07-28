@@ -22,7 +22,7 @@ import static com.google.gson.internal.$Gson$Types.arrayOf;
 
 public class MainActivity extends AppCompatActivity {
 
-    BottomNavigationView bottomNavigationView;
+    public BottomNavigationView bottomNavigationView;
     private FragmentManager fragmentManager = getSupportFragmentManager();
     private AlarmFragment alarmFragment = new AlarmFragment();
     private SearchFragment searchFragment = new SearchFragment();
