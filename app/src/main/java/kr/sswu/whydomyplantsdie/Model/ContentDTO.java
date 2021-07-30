@@ -12,6 +12,7 @@ public class ContentDTO {
     public String userId;
     public String userShortId;
     public String timestamp;
+    public String plantKind;
     public int likeCount = 0;
     public Map<String, Boolean> LIKES = new HashMap<>();
     public Map<String, Comment> comments;
