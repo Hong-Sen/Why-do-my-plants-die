@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,6 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.FileProvider;
 import androidx.loader.content.CursorLoader;
 
 import com.bumptech.glide.Glide;
@@ -36,6 +38,10 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -45,9 +51,10 @@ import kr.sswu.whydomyplantsdie.Model.ContentDTO;
 
 public class WritePostActivity extends AppCompatActivity {
 
-    private static final int PICK_IMAGE_FROM_ALBUM = 2;
-    private static final int REQUEST_IMAGE_CAPTURE = 1;
     final private static String TAG = "WritePost";
+    private static final int REQUEST_TAKE_PHOTO = 1;
+    private static final int PICK_IMAGE_FROM_ALBUM = 2;
+    private boolean camera = false;
     private String photoUrl;
     private FirebaseStorage firebaseStorage;
     private FirebaseDatabase firebaseDatabase;
@@ -59,8 +66,8 @@ public class WritePostActivity extends AppCompatActivity {
     private AutoCompleteTextView autoCompleteTextView;
 
     String mCurrentPhotoPath;
-    Uri imgUri;
     Uri photoURI;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -98,6 +105,9 @@ public class WritePostActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         dispatchTakePictureIntent();
+                        camera = true;
+
+                        bottomSheetDialog.dismiss();
                     }
                 });
 
@@ -133,25 +143,54 @@ public class WritePostActivity extends AppCompatActivity {
     }
 
     private void dispatchTakePictureIntent() {
-        Log.d(TAG, "dispatchTakePicture");
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        Log.d(TAG, "intent");
+        // Ensure that there's a camera activity to handle the intent
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-            Log.d(TAG, "result");
+            // Create the File where the photo should go
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+            }
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                photoURI = FileProvider.getUriForFile(this,
+                        "kr.sswu.whydomyplantsdie.fileprovider", photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+            }
         }
+    }
+
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+        mCurrentPhotoPath = image.getAbsolutePath();
+        return image;
     }
 
         @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         // 카메라로 사진을 찍어 이미지 가져오는 경우
-            if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-                Bundle extras = data.getExtras();
-                Bitmap imageBitmap = (Bitmap) extras.get("data");
-                imgAddPhoto.setImageBitmap(imageBitmap);
+            if (requestCode == REQUEST_TAKE_PHOTO) {
+                if(resultCode == RESULT_OK){
+                    imgAddPhoto.setImageURI(photoURI);
+                }
+                else if (resultCode == RESULT_CANCELED) {
+                    Toast.makeText(this, "사진 선택 취소", Toast.LENGTH_LONG).show();
+                }
             }
-
+        // 앨범에서 이미지 가져오는 경우
         if (requestCode == PICK_IMAGE_FROM_ALBUM) {
             if (resultCode == RESULT_OK) {
                 try {
@@ -170,7 +209,6 @@ public class WritePostActivity extends AppCompatActivity {
                 Toast.makeText(this, "사진 선택 취소", Toast.LENGTH_LONG).show();
             }
         }
-
     }
 
     private String getRealPathFromUri(Uri uri) {
@@ -186,8 +224,14 @@ public class WritePostActivity extends AppCompatActivity {
     }
 
     private void uploadFirebase() {
-        File file = new File(photoUrl);
-        Uri contentUri = Uri.fromFile(file);
+        Uri contentUri;
+        if(camera){
+            contentUri = Uri.fromFile(new File(mCurrentPhotoPath));
+        }
+        else{
+            File file = new File(photoUrl);
+            contentUri = Uri.fromFile(file);
+        }
         StorageReference storageRef =
                 firebaseStorage.getReferenceFromUrl("gs://why-do-my-plants-die.appspot.com/").child("feed").child(contentUri.getLastPathSegment());
         UploadTask uploadTask = storageRef.putFile(contentUri);
@@ -332,13 +376,6 @@ public class WritePostActivity extends AppCompatActivity {
         plantList.add("카네이션");
         plantList.add("체리 세이지");
         plantList.add("녹탑");
-
-
-
-
-
-
-
     }
 }
 
