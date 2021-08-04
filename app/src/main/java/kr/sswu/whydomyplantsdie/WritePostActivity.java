@@ -2,9 +2,11 @@ package kr.sswu.whydomyplantsdie;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -52,8 +54,8 @@ import kr.sswu.whydomyplantsdie.Model.ContentDTO;
 public class WritePostActivity extends AppCompatActivity {
 
     final private static String TAG = "WritePost";
-    private static final int REQUEST_TAKE_PHOTO = 1;
-    private static final int PICK_IMAGE_FROM_ALBUM = 2;
+    private static final int REQUEST_TAKE_PHOTO = 101;
+    private static final int PICK_IMAGE_FROM_ALBUM = 102;
     private boolean camera = false;
     private String photoUrl;
     private FirebaseStorage firebaseStorage;
@@ -83,6 +85,17 @@ public class WritePostActivity extends AppCompatActivity {
         firebaseStorage = FirebaseStorage.getInstance(); //Firebase storage
         firebaseDatabase = FirebaseDatabase.getInstance(); //Firebase Database
         firebaseAuth = FirebaseAuth.getInstance(); //Firebase Auth
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
+                    && checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG, "권한 설정 완료");
+            } else {
+                Log.d(TAG, "권한 설정 요청");
+                ActivityCompat.requestPermissions(WritePostActivity.this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+            }
+        }
+
         ActivityCompat.requestPermissions
                 (this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
 
@@ -143,9 +156,12 @@ public class WritePostActivity extends AppCompatActivity {
     }
 
     private void dispatchTakePictureIntent() {
+        Log.d(TAG, "1***");
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        Log.d(TAG, "2***");
         // Ensure that there's a camera activity to handle the intent
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            Log.d(TAG, "3***");
             // Create the File where the photo should go
             File photoFile = null;
             try {
@@ -195,6 +211,8 @@ public class WritePostActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 try {
                     photoUrl = getRealPathFromUri(data.getData());
+
+                    Log.d(TAG, "%% " + photoUrl);
 
                     Glide.with(getApplicationContext())
                             .load(photoUrl)
@@ -261,6 +279,8 @@ public class WritePostActivity extends AppCompatActivity {
                         contentDTO.imageUrl = imagePath;
                         //유저의 UID
                         contentDTO.uid = firebaseAuth.getCurrentUser().getUid();
+                        // 유저의 프로필 이미지
+                        contentDTO.userProfileImage = firebaseAuth.getCurrentUser().getPhotoUrl().toString();
                         //게시물의 설명
                         contentDTO.explain = edtContent.getText().toString();
                         //유저의 아이디

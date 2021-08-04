@@ -74,7 +74,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".WritePostActivity" />
-        <activity android:name=".Login.SearchActivity" />
         <activity android:name=".CommentActivity"
             android:windowSoftInputMode="adjustResize">
         </activity>

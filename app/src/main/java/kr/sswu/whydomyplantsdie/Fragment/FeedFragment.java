@@ -23,6 +23,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -43,7 +44,7 @@ import static android.widget.Toast.LENGTH_SHORT;
 
 public class FeedFragment extends Fragment {
 
-    private String user;
+    private FirebaseUser user;
     private Button btn_addPost;
     private FirebaseStorage firebaseStorage;
     private FirebaseDatabase firebaseDatabase;
@@ -64,6 +65,7 @@ public class FeedFragment extends Fragment {
 
         firebaseStorage = FirebaseStorage.getInstance();
         firebaseDatabase = FirebaseDatabase.getInstance();
+        user = FirebaseAuth.getInstance().getCurrentUser();
 
         RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.feed_recyclerview);
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(rootView.getContext());
@@ -79,6 +81,7 @@ public class FeedFragment extends Fragment {
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
+
         return rootView;
     }
 
@@ -124,30 +127,16 @@ public class FeedFragment extends Fragment {
             final ItemDetailPostBinding binding = ((CustomViewHolder) holder).getBinding();
 
             // 유저 이미지
-            FirebaseDatabase.getInstance()
-                    .getReference()
-                    .child("profileImages").child(contentDTOs.get(position).uid)
-                    .addListenerForSingleValueEvent(new ValueEventListener() {
-
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-
-                            if (dataSnapshot.exists()) {
-
-                                @SuppressWarnings("VisibleForTests")
-                                String url = dataSnapshot.getValue().toString();
-
-                                Glide.with(holder.itemView.getContext())
-                                        .load(url)
-                                        .apply(new RequestOptions().circleCrop()).into(binding.itemdetailpostUserImgae);
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
+            if(contentDTOs.get(position).userProfileImage != null){
+                Glide.with(holder.itemView.getContext())
+                        .load(contentDTOs.get(position).userProfileImage)
+                        .apply(new RequestOptions().circleCrop()).into(binding.itemdetailpostUserImgae);
+            }
+            else{
+                Glide.with(holder.itemView.getContext())
+                        .load(R.drawable.icon_profile)
+                        .apply(new RequestOptions().circleCrop()).into(binding.itemdetailpostUserImgae);
+            }
 
             // 유저 아이디
             binding.itemdetailpostUserId.setText(contentDTOs.get(position).userId);
@@ -183,18 +172,16 @@ public class FeedFragment extends Fragment {
             binding.itemdetailpostContent.setText(contentDTOs.get(position).explain);
 
             // 삭제 bottomsheet
-            LayoutInflater inflater = (LayoutInflater)requireActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            LayoutInflater inflater = (LayoutInflater) requireActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View view = inflater.inflate(R.layout.bottomsheet_delete_post, null, false);
             final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(getContext());
             bottomSheetDialog.setContentView(view);
 
             // more 버튼
-            user = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-
             binding.itemdetailpostMore.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(user.equals(contentDTOs.get(position).userId)){
+                    if (user.getEmail().equals(contentDTOs.get(position).userId)) {
                         bottomSheetDialog.show();
 
                         view.findViewById(R.id.txt_delete).setOnClickListener(new View.OnClickListener() {
@@ -231,7 +218,7 @@ public class FeedFragment extends Fragment {
 
         }
 
-        private void deleteContent(int position){
+        private void deleteContent(int position) {
             firebaseStorage.getReference().child("feed").child(contentDTOs.get(position).imageName).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {

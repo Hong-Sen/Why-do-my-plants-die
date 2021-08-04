@@ -1,16 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/layout_login"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".Login.LoginActivity">
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="190dp"
+            android:src="@drawable/login_background"
+            android:layout_alignParentTop="true"/>
+
+    <LinearLayout
+        android:id="@+id/layout_login"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="150dp"
+        android:layout_marginTop="180dp"
         android:gravity="center"
         android:text="우리집 식물을 왜 죽을까?"
         android:textColor="@color/deepGreen"
@@ -21,30 +36,30 @@
         android:id="@+id/edt_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="25dp"
-        android:layout_marginTop="80dp"
-        android:layout_marginRight="25dp"
-        android:hint="email"
-        android:inputType="textEmailAddress" />
+        android:layout_marginHorizontal="25dp"
+        android:layout_marginTop="70dp"
+        android:paddingLeft="10dp"
+        android:hint="  email"
+        android:inputType="textEmailAddress"
+        android:drawableLeft="@drawable/icon_email" />
 
     <EditText
         android:id="@+id/edt_password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="25dp"
-
+        android:layout_marginHorizontal="25dp"
         android:layout_marginTop="20dp"
-        android:layout_marginRight="25dp"
-        android:hint="password"
-        android:inputType="textPassword" />
+        android:hint="  password"
+        android:paddingLeft="10dp"
+        android:inputType="textPassword"
+        android:drawableLeft="@drawable/icon_password" />
 
     <Button
         android:id="@+id/btn_login"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_marginLeft="25dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginRight="25dp"
+        android:layout_marginHorizontal="25dp"
+        android:layout_marginTop="25dp"
         android:text="Login"
         android:textColor="@color/white"
         android:textSize="15dp" />
@@ -89,13 +104,14 @@
         android:id="@+id/btn_createAccount"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_marginLeft="25dp"
-        android:layout_marginTop="50dp"
-        android:layout_marginRight="25dp"
+        android:layout_marginHorizontal="25dp"
+        android:layout_marginTop="35dp"
         android:backgroundTint="@color/white"
         android:stateListAnimator="@null"
         android:text="Create account"
         android:textColor="@color/lightGreen"
         android:textSize="15dp" />
 
+</LinearLayout>
+    </RelativeLayout>
 </LinearLayout>

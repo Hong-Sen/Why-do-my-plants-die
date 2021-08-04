@@ -10,6 +10,7 @@ public class ContentDTO {
     public String imageUrl;
     public String uid;
     public String userId;
+    public String userProfileImage;
     public String userShortId;
     public String timestamp;
     public String plantKind;

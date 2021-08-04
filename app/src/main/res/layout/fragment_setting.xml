@@ -1,85 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Login.SettingActivity">
+    android:orientation="vertical">
 
-    <ImageView
-        android:id="@+id/imageView9"
-        android:layout_width="617dp"
-        android:layout_height="404dp"
-        android:layout_marginTop="329dp"
-        android:layout_marginBottom="4dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.776"
-        app:srcCompat="@drawable/pik" />
-
-
-    <ImageView
-        android:id="@+id/imageView3"
-        android:layout_width="wrap_content"
+    <androidx.appcompat.widget.Toolbar
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="352dp"
-        android:layout_marginRight="352dp"
-        android:layout_marginBottom="592dp"
-        android:src="@drawable/pngegg2"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:backgroundTint="#00000000">
 
-    <ImageView
-        android:id="@+id/imageView21"
-        android:layout_width="300dp"
-        android:layout_height="100dp"
-        android:layout_marginStart="64dp"
-        android:layout_marginLeft="64dp"
-        android:layout_marginTop="211dp"
-        android:layout_marginEnd="47dp"
-        android:layout_marginRight="47dp"
-        android:layout_marginBottom="347dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/s" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="300dp"
-        android:layout_height="100dp"
-        android:layout_marginStart="64dp"
-        android:layout_marginLeft="64dp"
-        android:layout_marginTop="331dp"
-        android:layout_marginEnd="47dp"
-        android:layout_marginRight="47dp"
-        android:layout_marginBottom="227dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/s" />
+            <ImageView
+                android:id="@+id/iv_setting"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_alignParentRight="true"
+                android:layout_margin="10dp"
+                android:src="@drawable/icon_more" />
 
-    <ImageView
-        android:id="@+id/imageView4"
-        android:layout_width="278dp"
-        android:layout_height="103dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginEnd="117dp"
-        android:layout_marginRight="117dp"
-        android:layout_marginBottom="579dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/settings2" />
+        </RelativeLayout>
 
+    </androidx.appcompat.widget.Toolbar>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="130dp"
+                    android:layout_margin="10dp"
+                    android:background="@drawable/setting_background" />
+
+                <ImageView
+                    android:id="@+id/iv_profile"
+                    android:layout_width="200dp"
+                    android:layout_height="200dp"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="40dp"
+                    android:background="@drawable/circle_border_white"
+                    android:padding="10dp" />
+
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/tv_userId"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="20dp"
+                android:text="user id"
+                android:textColor="@color/deepGreen"
+                android:textSize="25dp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_mbti"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginHorizontal="70dp"
+                android:layout_marginVertical="10dp"
+                android:background="@color/lightGreen"
+                android:text="나의 식물 mbti: "
+                android:textColor="@color/white"
+                android:textSize="15dp" />
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_margin="10dp"
+                android:background="#B8B4B4"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/grid_recyclerview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp" />
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
