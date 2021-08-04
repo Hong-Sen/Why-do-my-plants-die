@@ -8,9 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 import android.widget.Switch;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -29,124 +28,92 @@ import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
 
-//import kr.sswu.whydomyplantsdie.Adapter.AlarmAdapter;
+import kr.sswu.whydomyplantsdie.Adapter.AlarmAdapter;
 import kr.sswu.whydomyplantsdie.AlarmUploadActivity;
 import kr.sswu.whydomyplantsdie.Model.AlarmModel;
 import kr.sswu.whydomyplantsdie.R;
 
 public class AlarmFragment extends Fragment {
+    private RecyclerView recyclerView;
+    private RecyclerView.Adapter adapter;
+    private RecyclerView.LayoutManager layoutManager;
+    private ArrayList<AlarmModel> arrayList;
+    private FirebaseDatabase database;
+    private DatabaseReference databaseReference;
 
     //feed upload btn
-    private FloatingActionButton fab;
-
-    //feed view
-    private RecyclerView recyclerView;
-    private ArrayList<AlarmModel> alarmList;
+    private FloatingActionButton btnaddAlarm;
 
     //alarm on-off
     @SuppressLint("UseSwitchCompatOrMaterialCode")
-    Switch sw;
+    private Switch btnOnOff;
     SharedPreferences sharedPreferences;
-    public static final String ex = "sw";
+    public static final String ex = "btnOnOff";
+
+    private View view;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_alarm, container, false);
+        view = inflater.inflate(R.layout.fragment_alarm, container, false);
 
-        fab = view.findViewById(R.id.fab);
+        btnaddAlarm = view.findViewById(R.id.btn_addAlarm);
+        btnOnOff = (Switch) view.findViewById(R.id.itemAlarm_btn_onoff);
 
-        recyclerView = view.findViewById(R.id.alarm_recyclerview);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
-        recyclerView.setHasFixedSize(true);
-        layoutManager.setStackFromEnd(true);
-        layoutManager.setReverseLayout(true);
+        recyclerView = (RecyclerView) view.findViewById(R.id.alarm_recyclerview);
+        recyclerView.setHasFixedSize(true); // 리사이클러뷰 기존성능 강화
+        layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
-        alarmList = new ArrayList<>();
-        //loadAlarm();
+        arrayList = new ArrayList<>(); // User 객체를 담을 어레이 리스트 (어댑터쪽으로)
+
+        database = FirebaseDatabase.getInstance(); // 파이어베이스 데이터베이스 연동
+        databaseReference = database.getReference("alarmList"); // DB 테이블 연결
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                // 파이어베이스 데이터베이스의 데이터를 받아오는 곳
+                arrayList.clear(); // 기존 배열리스트가 존재하지않게 초기화
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) { // 반복문으로 데이터 List를 추출해냄
+                    AlarmModel alarmList = snapshot.getValue(AlarmModel.class); // 만들어뒀던 User 객체에 데이터를 담는다.
+                    arrayList.add(alarmList); // 담은 데이터들을 배열리스트에 넣고 리사이클러뷰로 보낼 준비
+                }
+                adapter.notifyDataSetChanged(); // 리스트 저장 및 새로고침해야 반영이 됨
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // 디비를 가져오던중 에러 발생 시
+                Log.e("AlarmFragment", String.valueOf(databaseError.toException())); // 에러문 출력
+            }
+        });
+
+        adapter = new AlarmAdapter(arrayList, getContext());
+        recyclerView.setAdapter(adapter); // 리사이클러뷰에 어댑터 연결
 
         //alarm upload activity로 이동
-        fab.setOnClickListener(new View.OnClickListener() {
+        btnaddAlarm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getContext(), AlarmUploadActivity.class);
                 startActivity(intent);
             }
         });
-/*
-        // 전체 알람
-        private void loadAlarm() {
-            DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Alarms");
-            ref.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if (tabLayout.getSelectedTabPosition() == 0) {
-                        alarmList.clear();
 
-                        for (DataSnapshot d : snapshot.getChildren()) {
-                            String fid = d.child("fid").getValue().toString();
-                            String img = d.child("image").getValue().toString();
-                            String name = d.child("uName").getValue().toString();
-                            String email = d.child("email").getValue().toString();
-                            String title = d.child("title").getValue().toString();
-
-                            AlarmModel feedModel = new AlarmModel(fid, img, name, email, title);
-
-                            alarmList.add(feedModel);
-                            adapter = new AlarmAdapter(getActivity(), alarmList);
-                            recyclerView.setAdapter(adapter);
-                        }
-                    }
+        //fcm cloud messaging token
+            FirebaseMessaging.getInstance().getToken()
+                    .addOnCompleteListener(new OnCompleteListener<String>() {
+            @Override
+            public void onComplete(@NonNull Task<String> task) {
+                if (!task.isSuccessful()) {
+                    Log.w("FCM Log", "getInstanceId failed", task.getException());
+                    return;
                 }
+                String token = task.getResult();
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    Toast.makeText(getActivity(), "" + error.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
-
-        return inflater.inflate(R.layout.fragment_alarm, container, false);
-        
-    }
-
-    //alarm on-off
-    sharedPreferences = getActivity().getSharedPreferences(" ", MODE_PRIVATE);
-    final SharedPreferences.Editor editor = sharedPreferences.edit();
-        sw.setChecked(sharedPreferences.getBoolean(ex, true));
-        FirebaseMessaging.getInstance().subscribeToTopic("1");
-        sw.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-        @Override
-        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            if (isChecked) {
-                editor.putBoolean(ex, true); // value to store
-                FirebaseMessaging.getInstance().subscribeToTopic("1");
-            } else {
-                editor.putBoolean(ex, false); // value to store
-                FirebaseMessaging.getInstance().unsubscribeFromTopic("1");
+                Log.d("FCM Log", "FCM 토큰: " + token);
             }
-            editor.commit();
-        }
-    });
+        });
 
-    //fcm cloudmessage token
-        FirebaseInstanceId.getInstance().getInstanceId()
-                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
-        @Override
-        public void onComplete(@NonNull Task<InstanceIdResult> task) {
-            if (!task.isSuccessful()) {
-                Log.w("FCM Log", "getInstanceId failed", task.getException());
-                return;
-            }
-            String token = task.getResult().getToken();
-
-            Log.d("FCM Log", "FCM 토큰: " + token);
-            //Toast.makeText(MainActivity.this, token, Toast.LENGTH_SHORT).show();
-
-        }
-        */
-        return view;
+    return view;
     }
-
 }
