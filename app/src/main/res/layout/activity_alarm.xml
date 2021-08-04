@@ -7,7 +7,7 @@
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="25dp"
+        android:layout_height="?android:actionBarSize"
         android:background="?android:windowBackground">
 
         <RelativeLayout
@@ -17,38 +17,50 @@
 
             <ImageView
                 android:id="@+id/btn_close"
-                android:layout_width="17dp"
-                android:layout_height="17dp"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
                 android:layout_alignParentLeft="true"
                 android:layout_centerVertical="true"
                 android:src="@drawable/icon_close" />
 
+            <TextView
+                android:id="@+id/toolbar_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:gravity="center"
+                android:text="New Alarm"
+                android:textColor="@color/deepGreen"
+                android:textSize="19sp" />
+
         </RelativeLayout>
     </androidx.appcompat.widget.Toolbar>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="0dp"
+            android:layout_weight="8">
 
             <ImageView
-                android:id="@+id/imageView"
+                android:id="@+id/alarm_img_photo"
                 android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:layout_centerHorizontal="true"
-                android:background="@color/white"
-                android:scaleType="fitCenter" />
+                android:layout_height="match_parent"
+                android:layout_margin="2dp"/>
 
             <ImageView
-                android:id="@+id/img_add"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_centerInParent="true"
-                android:src="@drawable/ic_add" />
+                android:id="@+id/img_border"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/post_border"/>
+
+            <ImageView
+                android:id="@+id/img_camera"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:src="@drawable/icon_upload_photo" />
         </RelativeLayout>
 
         <LinearLayout
@@ -72,14 +84,14 @@
                     android:src="@drawable/icon_edit" />
 
                 <EditText
-                    android:id="@+id/edit_name"
+                    android:id="@+id/alarm_edit_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_toRightOf="@+id/img_edit"
                     android:layout_marginLeft="30dp"
                     android:background="@color/aquaGreen"
-                    android:hint="이름"
+                    android:hint="식물 이름"
                     android:textColor="@color/greyDark"
                     android:textSize="16sp" />
             </RelativeLayout>
@@ -96,44 +108,17 @@
                     android:layout_height="40dp"
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="20dp"
-                    android:src="@drawable/icon_edit" />
+                    android:src="@drawable/icon_calendar" />
 
                 <EditText
-                    android:id="@+id/edit_water"
+                    android:id="@+id/alarm_edit_water"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_toRightOf="@+id/img_water"
                     android:layout_marginLeft="30dp"
                     android:background="@color/aquaGreen"
-                    android:hint="마지막으로 물 준 날짜"
-                    android:textColor="@color/greyDark"
-                    android:textSize="16sp" />
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginTop="15dp"
-                android:background="@color/aquaGreen" >
-
-                <ImageView
-                    android:id="@+id/img_cycle"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_centerVertical="true"
-                    android:layout_marginLeft="20dp"
-                    android:src="@drawable/icon_calendar"/>
-
-                <EditText
-                    android:id="@+id/edit_cycle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_toRightOf="@+id/img_cycle"
-                    android:layout_marginLeft="30dp"
-                    android:background="@color/aquaGreen"
-                    android:hint="주기"
+                    android:hint="마지막 물 준 날짜"
                     android:textColor="@color/greyDark"
                     android:textSize="16sp" />
             </RelativeLayout>
@@ -153,19 +138,19 @@
                     android:src="@drawable/icon_alarm"/>
 
                 <EditText
-                    android:id="@+id/edit_alarm"
+                    android:id="@+id/alarm_edit_cycle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_toRightOf="@+id/img_alarm"
                     android:layout_marginLeft="30dp"
                     android:background="@color/aquaGreen"
-                    android:hint="알람 시간 설정"
+                    android:hint="주기"
                     android:textColor="@color/greyDark"
                     android:textSize="16sp" />
                 
                 <Switch
-                    android:id="@+id/sw"
+                    android:id="@+id/alarm_btn_onoff"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
@@ -178,12 +163,11 @@
         <Button
             android:id="@+id/btn_upload"
             android:layout_width="190dp"
-            android:layout_height="40dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="17dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:layout_margin="10dp"
             android:background="@drawable/nav_background_curved"
-            android:text="ADD PLANT"
-            android:textSize="14dp" />
+            android:text="ADD PLANT" />
 
-    </LinearLayout>
 </LinearLayout>

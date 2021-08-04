@@ -1,83 +1,67 @@
 package kr.sswu.whydomyplantsdie.Adapter;
-/*
+
 import android.content.Context;
-import android.content.DialogInterface;
-import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import kr.sswu.whydomyplantsdie.Model.AlarmModel;
 import kr.sswu.whydomyplantsdie.R;
 
 public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.AlarmViewHolder> {
-    private Context ctx;
-    private List<AlarmModel> alarmList;
-    private String mUid;
 
-    private DatabaseReference alarmRef;
+    private ArrayList<AlarmModel> alarmList;
+    private Context context;
 
-    public AlarmAdapter(Context ctx, List<AlarmModel> alarmList) {
-        this.ctx = ctx;
+    public AlarmAdapter(ArrayList<AlarmModel> alarmList, Context context) {
         this.alarmList = alarmList;
-
-        mUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-        //alarmRef = FirebaseDatabase.getInstance().getReference().child("Alarms");
+        this.context = context;
     }
 
     @NonNull
     @Override
-    public AlarmViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(ctx).inflate(R.layout.alarm_item, parent, false);
-
-        return new AlarmViewHolder(v);
+    public AlarmAdapter.AlarmViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_alarm, parent, false);
+        return new AlarmViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull AlarmViewHolder holder, int position) {
-        AlarmModel tmp = alarmList.get(position);
+    public void onBindViewHolder(@NonNull AlarmAdapter.AlarmViewHolder holder, int position) {
+        Glide.with(holder.itemView.getContext())
+                .load(alarmList.get(position).getImageUrl())
+                .centerCrop()
+                .into(holder.itemAlarmImage);
 
-        String fid = tmp.getFid();
-        String uName = tmp.getName();
-        String fImg = tmp.getImage();
+        holder.itemAlarmName.setText(alarmList.get(position).getPlantName());
+        //holder.btnOnOff.setOnCheckedChangeListener(new View.) { };
 
-        try {
-            Picasso.get().load(fImg).into(holder.aImage);
-        } catch (Exception e) {
-
-        }
-
+    }
 
     @Override
     public int getItemCount() {
-        return alarmList.size();
+        return (alarmList != null ? alarmList.size() : 0);
     }
 
-    class AlarmViewHolder extends RecyclerView.ViewHolder {
-        ImageView aImage;
+    public class AlarmViewHolder extends RecyclerView.ViewHolder {
+        ImageView itemAlarmImage;
+        TextView itemAlarmName;
+        Switch btnOnOff;
 
-        public AlarmViewHolder(View itemView) {
+        public AlarmViewHolder(@NonNull View itemView) {
             super(itemView);
-
-            aImage = itemView.findViewById(R.id.imageView);
+            this.itemAlarmImage = itemView.findViewById(R.id.alarm_img_photo);
+            this.itemAlarmName = itemView.findViewById(R.id.alarm_edit_name);
+            this.btnOnOff = itemView.findViewById(R.id.alarm_btn_onoff);
         }
     }
 }
-
- */
