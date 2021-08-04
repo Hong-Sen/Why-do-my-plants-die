@@ -22,7 +22,7 @@ public class SignUpActivity extends AppCompatActivity {
     private FirebaseAuth firebaseAuth;
     private EditText editTextEmail;
     private EditText editTextPassword;
-    private EditText editTextName;
+    private EditText editTextPassword2;
     private Button buttonJoin;
 
     @Override
@@ -34,14 +34,14 @@ public class SignUpActivity extends AppCompatActivity {
 
         editTextEmail = (EditText) findViewById(R.id.edt_email);
         editTextPassword = (EditText) findViewById(R.id.edt_passWord);
-        editTextName = (EditText) findViewById(R.id.edt_name);
+        editTextPassword2 = (EditText) findViewById(R.id.edt_check_password);
         buttonJoin = (Button) findViewById(R.id.btn_join);
 
         buttonJoin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(!editTextEmail.getText().toString().equals("") && !editTextPassword.getText().toString().equals("")){
-                    createUser(editTextEmail.getText().toString(), editTextPassword.getText().toString(), editTextName.getText().toString());
+                    createUser(editTextEmail.getText().toString(), editTextPassword.getText().toString(), editTextPassword2.getText().toString());
                 }
                 else{
                     Toast.makeText(SignUpActivity.this, "계정과 비밀번호를 입력하세요.", Toast.LENGTH_LONG).show();
@@ -56,7 +56,7 @@ public class SignUpActivity extends AppCompatActivity {
         FirebaseUser user = firebaseAuth.getCurrentUser();
     }
 
-    private void createUser(String email, String password, String name) {
+    private void createUser(String email, String password, String password2) {
         firebaseAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -72,10 +72,10 @@ public class SignUpActivity extends AppCompatActivity {
                             else if(password.length() < 6){
                                 Toast.makeText(SignUpActivity.this, "비밀번호는 6자리 이상 입력해주세요.", Toast.LENGTH_SHORT).show();
                             }
-                            else{
-                                Toast.makeText(SignUpActivity.this, "이미 존재하는 계정입니다.", Toast.LENGTH_SHORT).show();
+                            else if(!(password.equals(password2))){
+                                Toast.makeText(SignUpActivity.this, "비밀번호가 틀렸습니다.", Toast.LENGTH_SHORT).show();
                             }
-                            Log.d("not success login", "createUserWithEmail:failure", task.getException());
+                            //Log.d("not success login", "createUserWithEmail:failure", task.getException());
                         }
                     }
                 });
