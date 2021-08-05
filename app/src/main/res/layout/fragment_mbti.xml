@@ -1,22 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <androidx.appcompat.widget.Toolbar
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="53dp"
         android:backgroundTint="#00000000"
         android:gravity="left">
 
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="Plant MBTI"
-            android:textColor="#246540"
-            android:textSize="30dp"
-            android:textStyle="bold"/>
+            android:orientation="horizontal"
+            android:paddingLeft="8dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="32dp"
+                android:layout_marginLeft="32dp"
+                android:layout_marginTop="-3dp"
+                android:layout_marginEnd="200dp"
+                android:layout_marginRight="200dp"
+                android:fontFamily="@font/tvnbold"
+                android:text="Mbti Test"
+                android:textColor="#000000"
+                android:textSize="32dp" />
+
+            <ImageView
+                android:id="@+id/imageView10"
+                android:layout_width="575dp"
+                android:layout_height="70dp"
+                android:layout_marginStart="-663dp"
+                android:layout_marginLeft="-663dp"
+                android:layout_marginTop="0dp"
+                app:srcCompat="@drawable/logo_icon2" />
+
+
+        </LinearLayout>
 
     </androidx.appcompat.widget.Toolbar>
     <WebView
