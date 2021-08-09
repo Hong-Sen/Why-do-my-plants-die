@@ -2,21 +2,43 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <androidx.appcompat.widget.Toolbar
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="53dp"
         android:backgroundTint="#00000000"
         android:gravity="left">
 
-        <TextView
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="Plant MBTI"
-            android:textColor="#246540"
-            android:textSize="30dp"
-            android:textStyle="bold"/>
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="267dp"
+                android:layout_height="45dp"
+                android:layout_marginStart="43dp"
+                android:layout_marginLeft="43dp"
+                android:layout_marginTop="4dp"
+                android:fontFamily="@font/tvnbold"
+                android:gravity="center_vertical"
+                android:text="Mbti Test"
+                android:textColor="@color/black"
+                android:textSize="32dp" />
+
+            <ImageView
+                android:id="@+id/imageView5"
+                android:layout_width="119dp"
+                android:layout_height="71dp"
+                android:layout_marginStart="-39dp"
+                android:layout_marginLeft="-39dp"
+                android:layout_marginBottom="-20dp"
+                app:srcCompat="@drawable/logo_icon2" />
+
+        </RelativeLayout>
+
 
     </androidx.appcompat.widget.Toolbar>
 
