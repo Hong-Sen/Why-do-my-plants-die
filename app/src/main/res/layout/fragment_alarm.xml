@@ -8,10 +8,13 @@
     <androidx.appcompat.widget.Toolbar
         android:layout_width="match_parent"
         android:layout_height="53dp"
-        android:backgroundTint="#00000000">
+        android:backgroundTint="#00000000"
+        android:gravity="left">
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
+
 
             <TextView
                 android:id="@+id/textView"
@@ -37,7 +40,6 @@
 
         </RelativeLayout>
 
-
     </androidx.appcompat.widget.Toolbar>
 
     <FrameLayout
@@ -52,7 +54,7 @@
             android:layout_height="match_parent" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab"
+            android:id="@+id/btn_addAlarm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="right|bottom"
