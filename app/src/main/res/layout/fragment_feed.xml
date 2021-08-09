@@ -28,7 +28,15 @@
                 android:text="Feed"
                 android:textColor="@color/black"
                 android:textSize="32dp" />
-
+            <Button
+                android:id="@+id/btn_createPost"
+                android:layout_width="40dp"
+                android:layout_height="50dp"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="10dp"
+                android:text="+"
+                android:textColor="@color/white"
+                android:textStyle="bold" />
             <ImageView
                 android:id="@+id/imageView5"
                 android:layout_width="119dp"
