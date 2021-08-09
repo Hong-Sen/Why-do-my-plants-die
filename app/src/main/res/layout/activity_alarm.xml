@@ -73,7 +73,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_marginTop="13dp"
-                android:background="@color/aquaGreen" >
+                android:background="@color/layoutGreen">
 
                 <ImageView
                     android:id="@+id/img_edit"
@@ -88,9 +88,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:layout_toRightOf="@+id/img_edit"
                     android:layout_marginLeft="30dp"
-                    android:background="@color/aquaGreen"
+                    android:layout_toRightOf="@+id/img_edit"
+                    android:background="@color/layoutGreen"
                     android:hint="식물 이름"
                     android:textColor="@color/greyDark"
                     android:textSize="16sp" />
@@ -100,7 +100,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_marginTop="15dp"
-                android:background="@color/aquaGreen" >
+                android:background="@color/layoutGreen">
 
                 <ImageView
                     android:id="@+id/img_water"
@@ -108,16 +108,16 @@
                     android:layout_height="40dp"
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="20dp"
-                    android:src="@drawable/icon_calendar" />
+                    android:src="@drawable/icon_drop" />
 
                 <EditText
                     android:id="@+id/alarm_edit_water"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:layout_toRightOf="@+id/img_water"
                     android:layout_marginLeft="30dp"
-                    android:background="@color/aquaGreen"
+                    android:layout_toRightOf="@+id/img_water"
+                    android:background="@color/layoutGreen"
                     android:hint="마지막 물 준 날짜"
                     android:textColor="@color/greyDark"
                     android:textSize="16sp" />
@@ -127,7 +127,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_marginTop="15dp"
-                android:background="@color/aquaGreen" >
+                android:background="@color/layoutGreen">
 
                 <ImageView
                     android:id="@+id/img_alarm"
@@ -135,27 +135,27 @@
                     android:layout_height="40dp"
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="20dp"
-                    android:src="@drawable/icon_alarm"/>
+                    android:src="@drawable/icon_calendar" />
 
                 <EditText
                     android:id="@+id/alarm_edit_cycle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:layout_toRightOf="@+id/img_alarm"
                     android:layout_marginLeft="30dp"
-                    android:background="@color/aquaGreen"
+                    android:layout_toRightOf="@+id/img_alarm"
+                    android:background="@color/layoutGreen"
                     android:hint="주기"
                     android:textColor="@color/greyDark"
                     android:textSize="16sp" />
-                
+
                 <Switch
                     android:id="@+id/alarm_btn_onoff"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
                     android:layout_alignParentRight="true"
-                    android:layout_marginRight="15dp"/>
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="15dp" />
             </RelativeLayout>
 
         </LinearLayout>
