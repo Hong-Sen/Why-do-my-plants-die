@@ -9,19 +9,13 @@
     <androidx.appcompat.widget.Toolbar
         android:layout_width="match_parent"
         android:layout_height="53dp"
-        android:backgroundTint="#00000000">
+        android:backgroundTint="#00000000"
+        android:gravity="left">
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <ImageView
-                android:id="@+id/iv_setting"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:layout_alignParentRight="true"
-                android:layout_margin="10dp"
-                android:src="@drawable/icon_more" />
 
             <TextView
                 android:id="@+id/textView"
@@ -48,7 +42,6 @@
         </RelativeLayout>
 
     </androidx.appcompat.widget.Toolbar>
-
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">

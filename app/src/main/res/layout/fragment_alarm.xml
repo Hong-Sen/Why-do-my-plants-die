@@ -6,40 +6,40 @@
     android:orientation="vertical">
 
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="53dp"
-        android:background="@color/white"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:contentInsetStart="0dp"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
-        <LinearLayout
+        android:backgroundTint="#00000000"
+        android:gravity="left">
+
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <ImageView
-                android:id="@+id/imageView5"
-                android:layout_width="119dp"
-                android:layout_height="71dp"
-                android:layout_marginStart="-23dp"
-                android:layout_marginLeft="-23dp"
-                android:layout_marginBottom="-20dp"
-                app:srcCompat="@drawable/logo_icon2" />
 
             <TextView
                 android:id="@+id/textView"
-                android:layout_width="270dp"
+                android:layout_width="267dp"
                 android:layout_height="45dp"
-                android:layout_marginStart="-40dp"
-                android:layout_marginLeft="-40dp"
-                android:layout_marginTop="3dp"
+                android:layout_marginStart="43dp"
+                android:layout_marginLeft="43dp"
+                android:layout_marginTop="4dp"
                 android:fontFamily="@font/tvnbold"
                 android:gravity="center_vertical"
                 android:text="My Forest"
                 android:textColor="@color/black"
                 android:textSize="32dp" />
 
-        </LinearLayout>
+            <ImageView
+                android:id="@+id/imageView5"
+                android:layout_width="119dp"
+                android:layout_height="71dp"
+                android:layout_marginStart="-39dp"
+                android:layout_marginLeft="-39dp"
+                android:layout_marginBottom="-20dp"
+                app:srcCompat="@drawable/logo_icon2" />
+
+        </RelativeLayout>
+
     </androidx.appcompat.widget.Toolbar>
 
     <FrameLayout

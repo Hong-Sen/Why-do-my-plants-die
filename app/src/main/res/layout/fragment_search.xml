@@ -11,8 +11,44 @@
         android:layout_height="wrap_content"
         android:fitsSystemWindows="true">
 
-
         <androidx.appcompat.widget.Toolbar
+            android:layout_width="match_parent"
+            android:layout_height="53dp"
+            android:background="@color/white"
+            android:gravity="left">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+
+                <TextView
+                    android:id="@+id/textView"
+                    android:layout_width="267dp"
+                    android:layout_height="45dp"
+                    android:layout_marginStart="43dp"
+                    android:layout_marginLeft="43dp"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="@font/tvnbold"
+                    android:gravity="center_vertical"
+                    android:text="Search"
+                    android:textColor="@color/black"
+                    android:textSize="32dp" />
+
+                <ImageView
+                    android:id="@+id/imageView5"
+                    android:layout_width="119dp"
+                    android:layout_height="71dp"
+                    android:layout_marginStart="-39dp"
+                    android:layout_marginLeft="-39dp"
+                    android:layout_marginBottom="-20dp"
+                    app:srcCompat="@drawable/logo_icon2" />
+
+            </RelativeLayout>
+
+        </androidx.appcompat.widget.Toolbar>
+
+       <!-- <androidx.appcompat.widget.Toolbar
             android:layout_width="match_parent"
             android:layout_height="53dp"
             android:background="@color/white"
@@ -57,7 +93,7 @@
             </LinearLayout>
 
 
-        </androidx.appcompat.widget.Toolbar>
+        </androidx.appcompat.widget.Toolbar> -->
 
     </com.google.android.material.appbar.AppBarLayout>
 
