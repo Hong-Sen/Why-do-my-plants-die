@@ -15,10 +15,15 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -33,14 +38,16 @@ import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.ArrayList;
 
-import kr.sswu.whydomyplantsdie.Adapter.AlarmAdapter;
 import kr.sswu.whydomyplantsdie.AlarmUploadActivity;
 import kr.sswu.whydomyplantsdie.Model.AlarmModel;
 import kr.sswu.whydomyplantsdie.R;
+import kr.sswu.whydomyplantsdie.databinding.ItemAlarmBinding;
 
 public class AlarmFragment extends Fragment {
-    private String curUid;
 
+    public static final String ex = "btnOnOff";
+    SharedPreferences sharedPreferences;
+    private String curUid;
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
     private RecyclerView.LayoutManager layoutManager;
@@ -48,16 +55,11 @@ public class AlarmFragment extends Fragment {
     private FirebaseDatabase database;
     private FirebaseStorage firebaseStorage;
     private DatabaseReference databaseReference;
-
     //feed upload btn
     private FloatingActionButton btnaddAlarm;
-
     //alarm on-off
     @SuppressLint("UseSwitchCompatOrMaterialCode")
     private Switch btnOnOff;
-    SharedPreferences sharedPreferences;
-    public static final String ex = "btnOnOff";
-
     private View view;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -65,6 +67,7 @@ public class AlarmFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_alarm, container, false);
+
         curUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         btnaddAlarm = view.findViewById(R.id.btn_addAlarm);
@@ -72,34 +75,35 @@ public class AlarmFragment extends Fragment {
 
         recyclerView = (RecyclerView) view.findViewById(R.id.alarm_recyclerview);
         recyclerView.setHasFixedSize(true); // 리사이클러뷰 기존성능 강화
-        layoutManager = new LinearLayoutManager(getContext());
+        layoutManager = new LinearLayoutManager(view.getContext());
         recyclerView.setLayoutManager(layoutManager);
-        alarmList = new ArrayList<>(); // User 객체를 담을 어레이 리스트 (어댑터쪽으로)
+        recyclerView.setAdapter(new AlarmAdapter()); // 리사이클러뷰에 어댑터 연결
+
         loadAlarm();
 
+        alarmList = new ArrayList<>(); // User 객체를 담을 어레이 리스트 (어댑터쪽으로)
+
         database = FirebaseDatabase.getInstance(); // 파이어베이스 데이터베이스 연동
-        databaseReference = database.getReference("alarmList"); // DB 테이블 연결
-        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                // 파이어베이스 데이터베이스의 데이터를 받아오는 곳
-                alarmList.clear(); // 기존 배열리스트가 존재하지않게 초기화
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) { // 반복문으로 데이터 List를 추출해냄
-                    AlarmModel alarmModel = snapshot.getValue(AlarmModel.class); // 만들어뒀던 User 객체에 데이터를 담는다.
-                    alarmList.add(alarmModel); // 담은 데이터들을 배열리스트에 넣고 리사이클러뷰로 보낼 준비
-                }
-                adapter.notifyDataSetChanged(); // 리스트 저장 및 새로고침해야 반영이 됨
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                // 디비를 가져오던중 에러 발생 시
-                Log.e("AlarmFragment", String.valueOf(databaseError.toException())); // 에러문 출력
-            }
-        });
-
-        adapter = new AlarmAdapter(alarmList, getContext());
-        recyclerView.setAdapter(adapter); // 리사이클러뷰에 어댑터 연결
+        firebaseStorage = FirebaseStorage.getInstance();
+//        databaseReference = database.getReference("alarmList"); // DB 테이블 연결
+//        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                // 파이어베이스 데이터베이스의 데이터를 받아오는 곳
+//                alarmList.clear(); // 기존 배열리스트가 존재하지않게 초기화
+//                for (DataSnapshot snapshot : dataSnapshot.getChildren()) { // 반복문으로 데이터 List를 추출해냄
+//                    AlarmModel alarmModel = snapshot.getValue(AlarmModel.class); // 만들어뒀던 User 객체에 데이터를 담는다.
+//                    alarmList.add(alarmModel); // 담은 데이터들을 배열리스트에 넣고 리사이클러뷰로 보낼 준비
+//                }
+//                adapter.notifyDataSetChanged(); // 리스트 저장 및 새로고침해야 반영이 됨
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//                // 디비를 가져오던중 에러 발생 시
+//                Log.e("AlarmFragment", String.valueOf(databaseError.toException())); // 에러문 출력
+//            }
+//        });
 
         //alarm upload activity로 이동
         btnaddAlarm.setOnClickListener(new View.OnClickListener() {
@@ -127,79 +131,6 @@ public class AlarmFragment extends Fragment {
 
         return view;
     }
-
-    /*
-    public class AlarmAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-
-        private final ArrayList<AlarmModel> alarmList;
-        private final ArrayList<String> uidList;
-
-        AlarmAdapter(ArrayList<AlarmModel> alarmList, Context context) {
-            this.alarmList = new ArrayList<>();
-            uidList = new ArrayList<>();
-
-            FirebaseDatabase.getInstance().getReference().child("alarm").addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    AlarmAdapter.this.alarmList.clear();
-                    uidList.clear();
-
-                    for (DataSnapshot snapshot1 : snapshot.getChildren()) {
-                        AlarmAdapter.this.alarmList.add(snapshot1.getValue(AlarmModel.class));
-                        uidList.add(snapshot1.getKey());
-                    }
-                    notifyDataSetChanged();
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-
-                }
-            });
-        }
-
-        @NonNull
-        @Override
-        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_alarm, parent, false);
-            return new CustomViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-            Glide.with(holder.itemView.getContext())
-                    .load(alarmList.get(position).getImageUrl())
-                    .centerCrop()
-                    .apply(new RequestOptions().circleCrop()).into(holder.itemAlarmImage);
-            holder.itemAlarmName.setText(alarmList.get(position).getPlantName());
-            holder.itemAlarmWater.setText(alarmList.get(position).getWater());
-            holder.itemAlarmCycle.setText(alarmList.get(position).getCycle());
-            //holder.btnOnOff.setOnCheckedChangeListener(new View.) { };
-        }
-
-
-        @Override
-        public int getItemCount() {
-            return (alarmList != null ? alarmList.size() : 0);
-        }
-
-        public class CustomViewHolder extends RecyclerView.ViewHolder {
-            ImageView itemAlarmImage;
-            TextView itemAlarmName, itemAlarmWater, itemAlarmCycle;
-            //Switch btnOnOff;
-
-            public CustomViewHolder(@NonNull View itemView) {
-                super(itemView);
-                itemAlarmImage = itemView.findViewById(R.id.alarm_img_photo);
-                itemAlarmName = itemView.findViewById(R.id.alarm_edit_name);
-                itemAlarmWater = itemView.findViewById(R.id.alarm_edit_water);
-                itemAlarmCycle = itemView.findViewById(R.id.alarm_edit_cycle);
-                //btnOnOff = itemView.findViewById(R.id.alarm_btn_onoff);
-            }
-        }
-    }
-
-     */
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void loadAlarm() {
@@ -229,5 +160,78 @@ public class AlarmFragment extends Fragment {
                 Toast.makeText(getActivity(), "" + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    public class AlarmAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+        private final ArrayList<AlarmModel> alarmList;
+        private final ArrayList<String> uidList;
+
+        AlarmAdapter() {
+            alarmList = new ArrayList<>();
+            uidList = new ArrayList<>();
+
+            FirebaseDatabase.getInstance().getReference().child("alarm").addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    alarmList.clear();
+                    uidList.clear();
+
+                    for (DataSnapshot snapshot1 : snapshot.getChildren()) {
+                        alarmList.add(snapshot1.getValue(AlarmModel.class));
+                        uidList.add(snapshot1.getKey());
+                    }
+                    notifyDataSetChanged();
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+        }
+
+        @NonNull
+        @Override
+        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_alarm, parent, false);
+            return new CustomViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+            final ItemAlarmBinding binding = ((CustomViewHolder) holder).getBinding();
+
+            RequestOptions requestOptions = new RequestOptions();
+            requestOptions = requestOptions.transforms(new CenterCrop(), new RoundedCorners(16));
+
+            Glide.with(holder.itemView.getContext())
+                    .load(alarmList.get(position).getImageUrl())
+                    .centerCrop()
+                    .apply(requestOptions).into((binding.itemAlarmImage));
+            binding.itemAlarmPlantName.setText(alarmList.get(position).getPlantName());
+            binding.itemAlarmWater.setText(alarmList.get(position).getWater());
+            binding.itemAlarmCycle.setText(alarmList.get(position).getCycle() + "일 주기");
+            //(CustomViewHolder)holder).btnOnOff.setOnCheckedChangeListener(new View.) { };
+        }
+
+        @Override
+        public int getItemCount() {
+            return (alarmList != null ? alarmList.size() : 0);
+        }
+
+        public class CustomViewHolder extends RecyclerView.ViewHolder {
+
+            private ItemAlarmBinding binding;
+
+            public CustomViewHolder(@NonNull View itemView) {
+                super(itemView);
+                binding = DataBindingUtil.bind(itemView);
+            }
+
+            ItemAlarmBinding getBinding() {
+                return binding;
+            }
+        }
     }
 }
