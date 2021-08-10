@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="spinner_cycle">
+        <item>물주기</item>
+        <item>1일</item>
+        <item>2일</item>
+        <item>3일</item>
+        <item>5일</item>
+        <item>10일</item>
+        <item>15일</item>
+        <item>20일</item>
+        <item>한 달</item>
+        <item>두 달</item>
+        <item>세 달</item>
+    </string-array>
+</resources>
