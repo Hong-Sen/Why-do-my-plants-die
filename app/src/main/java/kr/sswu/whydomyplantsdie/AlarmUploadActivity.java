@@ -2,8 +2,10 @@ package kr.sswu.whydomyplantsdie;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -80,6 +82,17 @@ public class AlarmUploadActivity extends AppCompatActivity {
         firebaseStorage = FirebaseStorage.getInstance(); //Firebase storage
         firebaseDatabase = FirebaseDatabase.getInstance(); //Firebase Database
         firebaseAuth = FirebaseAuth.getInstance(); //Firebase Auth
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
+                    && checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG, "권한 설정 완료");
+            } else {
+                Log.d(TAG, "권한 설정 요청");
+                ActivityCompat.requestPermissions(AlarmUploadActivity.this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+            }
+        }
+
         ActivityCompat.requestPermissions
                 (this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
 

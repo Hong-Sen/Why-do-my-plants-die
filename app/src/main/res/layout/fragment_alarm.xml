@@ -15,7 +15,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-
             <TextView
                 android:id="@+id/textView"
                 android:layout_width="267dp"
@@ -44,9 +43,9 @@
 
     <FrameLayout
         android:layout_gravity="center_horizontal"
-        android:layout_width="385dp"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#b2dfdb" >
+        android:background="@color/layoutGreen">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/alarm_recyclerview"
