@@ -1,5 +1,7 @@
 package kr.sswu.whydomyplantsdie.Model;
 
+import java.util.Map;
+
 public class AlarmModel {
     public String uid;
     public String userid;
@@ -8,19 +10,19 @@ public class AlarmModel {
     public String plantName;
     public String water;
     public String cycle;
-    //public String time;
     public String btnOnoff;
+    public Map<String, AlarmModel.AlarmItem> alarmItems;
 
-    public AlarmModel() {
-        this.uid = uid;
-        this.userid = userid;
-        this.image = image;
-        this.imageUrl = imageUrl;
-        this.plantName = plantName;
-        this.water = water;
-        this.cycle = cycle;
-        //this.time = time;
-        this.btnOnoff = btnOnoff;
+    public static class AlarmItem {
+        public String uid;
+        public String userid;
+        public String image;
+        public String imageUrl;
+        public String plantName;
+        public String water;
+        public String cycle;
+        public String btnOnoff;
+        public String alarmItem;
     }
 
     public void setUid(String uid) {

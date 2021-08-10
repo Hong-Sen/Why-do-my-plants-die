@@ -1,6 +1,7 @@
 package kr.sswu.whydomyplantsdie.Fragment;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -25,7 +26,10 @@ import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -43,11 +47,14 @@ import kr.sswu.whydomyplantsdie.Model.AlarmModel;
 import kr.sswu.whydomyplantsdie.R;
 import kr.sswu.whydomyplantsdie.databinding.ItemAlarmBinding;
 
+import static android.widget.Toast.LENGTH_SHORT;
+import static com.facebook.FacebookSdk.getApplicationContext;
+
 public class AlarmFragment extends Fragment {
 
     public static final String ex = "btnOnOff";
     SharedPreferences sharedPreferences;
-    private String curUid;
+    private String uid;
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
     private RecyclerView.LayoutManager layoutManager;
@@ -68,7 +75,7 @@ public class AlarmFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_alarm, container, false);
 
-        curUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         btnaddAlarm = view.findViewById(R.id.btn_addAlarm);
         btnOnOff = (Switch) view.findViewById(R.id.itemAlarm_btn_onoff);
@@ -135,7 +142,7 @@ public class AlarmFragment extends Fragment {
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void loadAlarm() {
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Alarm");
-        ref.orderByChild("uid").equalTo(curUid).addValueEventListener(new ValueEventListener() {
+        ref.orderByChild("uid").equalTo(uid).addValueEventListener(new ValueEventListener() {
 
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -211,8 +218,60 @@ public class AlarmFragment extends Fragment {
                     .apply(requestOptions).into((binding.itemAlarmImage));
             binding.itemAlarmPlantName.setText(alarmList.get(position).getPlantName());
             binding.itemAlarmWater.setText(alarmList.get(position).getWater());
-            binding.itemAlarmCycle.setText(alarmList.get(position).getCycle() + "일 주기");
+            binding.itemAlarmCycle.setText(alarmList.get(position).getCycle() + " 주기");
             //(CustomViewHolder)holder).btnOnOff.setOnCheckedChangeListener(new View.) { };
+
+            // 삭제 bottomsheet
+            LayoutInflater inflater = (LayoutInflater) requireActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View view = inflater.inflate(R.layout.bottomsheet_delete_post, null, false);
+            final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(getContext());
+            bottomSheetDialog.setContentView(view);
+
+            // 댓글 layout
+            binding.itemAlarmLayout.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                        bottomSheetDialog.show();
+
+                        view.findViewById(R.id.txt_delete).setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                deleteAlarm(position);
+                                bottomSheetDialog.dismiss();
+
+                            }
+                        });
+                    return true;
+                }
+            });
+        }
+
+        private void deleteAlarm(int position) {
+            firebaseStorage.getReference().child("alarm").child(alarmList.get(position).image).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+
+                }
+            });
+
+            database.getReference().child("alarm").child(uidList.get(position)).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Toast.makeText(getContext(), "삭제 완료", LENGTH_SHORT).show();
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(getContext(), "삭제 실패", LENGTH_SHORT).show();
+                }
+            });
+
+
         }
 
         @Override
