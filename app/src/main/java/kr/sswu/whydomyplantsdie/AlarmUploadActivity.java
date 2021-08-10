@@ -291,20 +291,4 @@ public class AlarmUploadActivity extends AppCompatActivity {
                 });
     }
 
-    private void deleteAlarm(int position) {
-        firebaseDatabase.getReference().child("alarm").removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Log.d("AlarmUploadActivity", "삭제완료");
-                Toast.makeText(getApplicationContext(), "삭제 완료", LENGTH_SHORT).show();
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.d("AlarmUploadActivity", "삭제실패");
-                Toast.makeText(getApplicationContext(), "삭제 실패", LENGTH_SHORT).show();
-            }
-        });
-    }
-
 }

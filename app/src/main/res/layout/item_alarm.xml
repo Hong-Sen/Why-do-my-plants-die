@@ -13,6 +13,7 @@
         android:background="@drawable/alarm_curved_background">
 
         <RelativeLayout
+            android:id="@+id/itemAlarm_layout"
             android:layout_width="match_parent"
             android:layout_height="140dp">
 
