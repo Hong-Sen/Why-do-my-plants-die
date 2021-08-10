@@ -1,6 +1,7 @@
 package kr.sswu.whydomyplantsdie;
 
 import android.Manifest;
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -13,10 +14,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -40,7 +45,9 @@ import com.google.firebase.storage.UploadTask;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 import kr.sswu.whydomyplantsdie.Model.AlarmModel;
 
@@ -57,12 +64,14 @@ public class AlarmUploadActivity extends AppCompatActivity {
     private FirebaseDatabase firebaseDatabase;
     private FirebaseAuth firebaseAuth;
     private ImageView imgPhoto, btnClose, imgCamera;
-    private EditText editName, editWater, editCycle, editTime;
-    private Switch editBtnOnOff;
+    private EditText editName;
+    private TextView editWater;
+    private Spinner spinnerCycle;
     private Button btnUpload;
 
     String mCurrentPhotoPath;
     Uri photoURI;
+    Calendar myCalendar = Calendar.getInstance();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -73,10 +82,8 @@ public class AlarmUploadActivity extends AppCompatActivity {
         imgCamera = findViewById(R.id.img_camera);
         editName = findViewById(R.id.alarm_edit_name);
         editWater = findViewById(R.id.alarm_edit_water);
-        editCycle = findViewById(R.id.alarm_edit_cycle);
-        //editTime = findViewById(R.id.edit_time);
+        spinnerCycle = findViewById(R.id.alarm_edit_cycle);
         btnClose = findViewById(R.id.btn_close);
-        editBtnOnOff = findViewById(R.id.alarm_btn_onoff);
         btnUpload = findViewById(R.id.btn_upload);
 
         firebaseStorage = FirebaseStorage.getInstance(); //Firebase storage
@@ -144,6 +151,48 @@ public class AlarmUploadActivity extends AppCompatActivity {
             public void onClick(View v) {
                 uploadFirebase();
                 finish();
+            }
+        });
+
+        editWater.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                DatePickerDialog.OnDateSetListener myDatePicker = new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                        myCalendar.set(Calendar.YEAR, year);
+                        myCalendar.set(Calendar.MONTH, month);
+                        myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                        updateDate();
+                    }
+                };
+                new DatePickerDialog(AlarmUploadActivity.this, myDatePicker, myCalendar.get(Calendar.YEAR), myCalendar.get(Calendar.MONTH), myCalendar.get(Calendar.DAY_OF_MONTH)).show();
+            }
+
+            private void updateDate() {
+                String myFormat = "yyyy년 MM월 dd일";    // 출력형식   2018년 11월 28일
+                SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.KOREA);
+                editWater.setText(sdf.format(myCalendar.getTime()));
+            }
+        });
+
+        spinnerCycle.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                isEnabled(0);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+
+            private boolean isEnabled(int position) {
+                if (position == 0) {
+                    // Disable first item from Spinner
+                    return false;
+                } else
+                    return true;
             }
         });
     }
@@ -267,10 +316,7 @@ public class AlarmUploadActivity extends AppCompatActivity {
                 //알람 설명
                 alarmModel.plantName = editName.getText().toString();
                 alarmModel.water = editWater.getText().toString();
-                alarmModel.cycle = editCycle.getText().toString();
-                //alarmModel.time = editTime.getText().toString();
-                //알람 온오프
-                //alarmModel.btnOnoff = editBtnOnOff.;
+                alarmModel.cycle = spinnerCycle.getSelectedItem().toString();
                 //유저의 아이디
                 alarmModel.userid = firebaseAuth.getCurrentUser().getEmail();
 

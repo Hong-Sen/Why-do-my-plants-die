@@ -86,13 +86,12 @@
             <EditText
                 android:id="@+id/alarm_edit_name"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
+                android:layout_height="50dp"
+                android:gravity="center_vertical"
                 android:layout_marginLeft="30dp"
                 android:layout_toRightOf="@+id/img_edit"
                 android:background="@color/layoutGreen"
                 android:hint="식물 이름"
-                android:textColor="@color/greyDark"
                 android:textSize="16sp" />
         </RelativeLayout>
 
@@ -108,19 +107,18 @@
                 android:layout_height="40dp"
                 android:layout_centerVertical="true"
                 android:layout_marginLeft="20dp"
-                android:src="@drawable/icon_edit" />
+                android:src="@drawable/icon_water" />
 
-            <EditText
+            <TextView
                 android:id="@+id/alarm_edit_water"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
+                android:layout_height="50dp"
+                android:gravity="center_vertical"
                 android:layout_marginLeft="30dp"
                 android:layout_toRightOf="@+id/img_water"
-                android:background="@color/layoutGreen"
                 android:hint="마지막 물 준 날짜"
-                android:textColor="@color/greyDark"
-                android:textSize="16sp" />
+                android:textColor="@color/black"
+                android:textSize="16sp"/>
         </RelativeLayout>
 
         <RelativeLayout
@@ -137,25 +135,16 @@
                 android:layout_marginLeft="20dp"
                 android:src="@drawable/icon_calendar" />
 
-            <EditText
+            <Spinner
                 android:id="@+id/alarm_edit_cycle"
+                android:entries="@array/spinner_cycle"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
+                android:layout_height="50dp"
+                android:gravity="center_vertical"
                 android:layout_marginLeft="30dp"
                 android:layout_toRightOf="@+id/img_alarm"
-                android:background="@color/layoutGreen"
-                android:hint="물주기"
-                android:textColor="@color/greyDark"
-                android:textSize="16sp" />
+                android:layout_marginRight="40dp" />
 
-            <Switch
-                android:id="@+id/alarm_btn_onoff"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="15dp" />
         </RelativeLayout>
 
     </LinearLayout>
