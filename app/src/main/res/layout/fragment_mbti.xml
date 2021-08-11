@@ -39,7 +39,11 @@
 
         </RelativeLayout>
 
-
     </androidx.appcompat.widget.Toolbar>
+
+    <WebView
+        android:id="@+id/webView"
+        android:layout_width="match_parent"
+        android:layout_height="580dp"/>
 
 </LinearLayout>
