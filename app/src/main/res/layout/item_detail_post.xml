@@ -35,7 +35,7 @@
                     android:layout_height="20dp"
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="20dp"
-                    android:src="@drawable/icon_green_heart" />
+                    android:src="@drawable/icon_before_like" />
 
                 <TextView
                     android:id="@+id/itemdetailpost_like_cnt"
@@ -54,7 +54,7 @@
                     android:layout_height="20dp"
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="100dp"
-                    android:src="@drawable/icon_green_comment" />
+                    android:src="@drawable/icon_comment" />
 
                 <TextView
                     android:id="@+id/itemdetailpost_comment_cnt"

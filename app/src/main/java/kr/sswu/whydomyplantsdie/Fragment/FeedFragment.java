@@ -164,9 +164,9 @@ public class FeedFragment extends Fragment {
                 }
             });
             if (contentDTOs.get(position).LIKES.containsKey(user.getUid())) {
-                binding.itemdetailpostLike.setImageResource(R.drawable.icon_after_like);
-            } else {
                 binding.itemdetailpostLike.setImageResource(R.drawable.icon_green_heart);
+            } else {
+                binding.itemdetailpostLike.setImageResource(R.drawable.icon_before_like);
             }
 
             //좋아요 개수
@@ -212,7 +212,19 @@ public class FeedFragment extends Fragment {
                 }
             });
 
-           // binding.itemdetailpostCommentCnt.setText(contentDTOs.get(position).commentCount + " ");
+           // 댓글 개수
+            firebaseDatabase.getReference().child("feed").child(contentUidList.get(position)).child("comments").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    long commentCnt = snapshot.getChildrenCount();
+                    binding.itemdetailpostCommentCnt.setText(commentCnt+"");
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
         }
 
         private void deleteContent(int position) {
