@@ -3,6 +3,7 @@ package kr.sswu.whydomyplantsdie.Fragment;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import kr.sswu.whydomyplantsdie.MainActivity;
 import kr.sswu.whydomyplantsdie.R;
 
 public class SearchFragment extends Fragment {
@@ -44,6 +46,32 @@ public class SearchFragment extends Fragment {
         });
 
         webView.loadUrl("https://www.fuleaf.com/search?term=");
+
+        //웹뷰 뒤로가기
+        webView.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+
+                //This is the filter
+                if (event.getAction()!=KeyEvent.ACTION_DOWN)
+                    return true;
+
+
+                if (keyCode == KeyEvent.KEYCODE_BACK) {
+                    if (webView.canGoBack()) {
+                        webView.goBack();
+
+                    } else {
+
+                        ((MainActivity)getActivity()).onBackPressed();
+                    }
+
+                    return true;
+                }
+
+                return false;
+            }
+        });
         return view;
     }
 
