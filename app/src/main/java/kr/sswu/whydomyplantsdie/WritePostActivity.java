@@ -156,12 +156,9 @@ public class WritePostActivity extends AppCompatActivity {
     }
 
     private void dispatchTakePictureIntent() {
-        Log.d(TAG, "1***");
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        Log.d(TAG, "2***");
         // Ensure that there's a camera activity to handle the intent
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            Log.d(TAG, "3***");
             // Create the File where the photo should go
             File photoFile = null;
             try {
@@ -211,8 +208,6 @@ public class WritePostActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 try {
                     photoUrl = getRealPathFromUri(data.getData());
-
-                    Log.d(TAG, "%% " + photoUrl);
 
                     Glide.with(getApplicationContext())
                             .load(photoUrl)
@@ -279,8 +274,6 @@ public class WritePostActivity extends AppCompatActivity {
                         contentDTO.imageUrl = imagePath;
                         //유저의 UID
                         contentDTO.uid = firebaseAuth.getCurrentUser().getUid();
-                        // 유저의 프로필 이미지
-                        contentDTO.userProfileImage = firebaseAuth.getCurrentUser().getPhotoUrl().toString();
                         //게시물의 설명
                         contentDTO.explain = edtContent.getText().toString();
                         //유저의 아이디

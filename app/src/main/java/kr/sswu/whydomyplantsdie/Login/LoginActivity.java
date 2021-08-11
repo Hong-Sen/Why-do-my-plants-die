@@ -26,6 +26,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthCredential;
@@ -35,6 +37,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import kr.sswu.whydomyplantsdie.MainActivity;
 import kr.sswu.whydomyplantsdie.R;
@@ -251,5 +257,40 @@ public class LoginActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         }
+    }
+
+    private void updateProfile() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+
+        String img = getURLForResource(R.drawable.icon_profile);
+        Uri contentUri = Uri.parse(img);
+
+        StorageReference storageRef =
+                FirebaseStorage.getInstance().getReferenceFromUrl("gs://why-do-my-plants-die.appspot.com/").child("profileImage").child(user.getUid());
+        UploadTask uploadTask = storageRef.putFile(contentUri);
+
+        String imagePath = "https://firebasestorage.googleapis.com/v0/b/" + "why-do-my-plants-die.appspot.com"
+                + "/o/" + "profileImage%2F" + user.getUid() + "?alt=media";
+
+        Log.d("Profile", "imagepath: " + imagePath);
+        uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                firebaseDatabase.getReference().child("users").child(user.getUid()).child("profileImage").setValue(imagePath);
+            }
+        })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getApplicationContext(), "프로필 사진 업데이트 실패",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+    public String getURLForResource (int resourceId) {
+        //use BuildConfig.APPLICATION_ID instead of R.class.getPackage().getName() if both are not same
+        return Uri.parse("android.resource://"+R.class.getPackage().getName()+"/" +resourceId).toString();
     }
 }

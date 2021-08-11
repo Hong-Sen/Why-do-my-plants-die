@@ -1,17 +1,12 @@
 package kr.sswu.whydomyplantsdie;
 
-import android.content.Context;
-import android.media.Image;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -51,40 +46,66 @@ public class CommentActivity extends AppCompatActivity {
     private EditText message;
     private ImageView close;
     private RecyclerView recyclerView;
-    private String user;
+    private FirebaseUser user;
     private String destinationUid;
     private String imageUid;
     private String intentWirterId;
     private String intentWirterExplain;
     private String intentWirterImage;
     private FirebaseDatabase firebaseDatabase;
-
+    private int commentCnt;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_comment);
 
-        user = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        user = FirebaseAuth.getInstance().getCurrentUser();
         firebaseDatabase = FirebaseDatabase.getInstance();
 
         destinationUid = getIntent().getStringExtra("destinationUid");
         imageUid = getIntent().getStringExtra("imageUid");
         intentWirterId = getIntent().getStringExtra("writerShortId");
         intentWirterExplain = getIntent().getStringExtra("writerExplain");
-        //intentWirterImage = getIntent().getStringExtra("writerImage");
 
-        writerImage = (ImageView)findViewById(R.id.writer_image);
-        writerId = (TextView)findViewById(R.id.writer_id);
-        writerExplain = (TextView)findViewById(R.id.writer_explain);
-        //writerImage = (ImageView)findViewById(R.id.writer_image);
+        writerImage = (ImageView) findViewById(R.id.writer_image);
+        writerId = (TextView) findViewById(R.id.writer_id);
+        writerExplain = (TextView) findViewById(R.id.writer_explain);
+
+        firebaseDatabase.getReference().child("users").child(destinationUid).child("profileImage").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String img = snapshot.getValue(String.class);
+                if (img == null) {
+                    try {
+                        Glide.with(CommentActivity.this)
+                                .load(R.drawable.icon_profile)
+                                .apply(new RequestOptions().circleCrop()).into(writerImage);
+                    } catch (Exception e) {
+                    }
+                } else {
+                    try {
+                        Glide.with(getApplicationContext())
+                                .load(img)
+                                .apply(new RequestOptions().circleCrop()).into(writerImage);
+                    } catch (Exception e) {
+                    }
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
 
         writerId.setText(intentWirterId);
         writerExplain.setText(intentWirterExplain);
 
-        message = (EditText)findViewById(R.id.comment_message_edt);
+        message = (EditText) findViewById(R.id.comment_message_edt);
 
-        close = (ImageView)findViewById(R.id.btn_close);
+        close = (ImageView) findViewById(R.id.btn_close);
         close.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -92,14 +113,22 @@ public class CommentActivity extends AppCompatActivity {
             }
         });
 
-        send = (ImageView)findViewById(R.id.comment_send);
+        send = (ImageView) findViewById(R.id.comment_send);
         send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ContentDTO.Comment comment = new ContentDTO.Comment();
-                comment.userId = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+                comment.userId = user.getEmail();
                 comment.comment = message.getText().toString();
-                comment.uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                comment.uid = user.getUid();
+
+//                ContentDTO contentDTO = new ContentDTO();
+//                contentDTO.commentCount = commentCnt;
+//                FirebaseDatabase.getInstance()
+//                        .getReference("feed")
+//                        .child(imageUid)
+//                        .push()
+//                        .setValue(contentDTO);
 
                 FirebaseDatabase.getInstance()
                         .getReference("feed")
@@ -107,23 +136,25 @@ public class CommentActivity extends AppCompatActivity {
                         .child("comments")
                         .push()
                         .setValue(comment);
+
                 message.setText("");
             }
         });
 
-        recyclerView = (RecyclerView)findViewById(R.id.comment_recyclerview);
+        recyclerView = (RecyclerView) findViewById(R.id.comment_recyclerview);
         recyclerView.setAdapter(new recyclerViewAdapter());
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
     }
 
-    class recyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
+    class recyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         private ArrayList<ContentDTO.Comment> comments;
-        private  ArrayList<String> contentUidList;
+        private ArrayList<String> contentUidList;
 
-        public recyclerViewAdapter(){
+        public recyclerViewAdapter() {
             comments = new ArrayList<>();
             contentUidList = new ArrayList<>();
+
             FirebaseDatabase
                     .getInstance()
                     .getReference()
@@ -135,7 +166,7 @@ public class CommentActivity extends AppCompatActivity {
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
                             comments.clear();
                             contentUidList.clear();
-                            for(DataSnapshot snapshot1 : snapshot.getChildren()){
+                            for (DataSnapshot snapshot1 : snapshot.getChildren()) {
                                 comments.add(snapshot1.getValue(ContentDTO.Comment.class));
                                 contentUidList.add(snapshot1.getKey());
                             }
@@ -152,30 +183,29 @@ public class CommentActivity extends AppCompatActivity {
         @NonNull
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_comment,parent,false);
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_comment, parent, false);
             return new CustomViewHolder(view);
         }
 
         @Override
         public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-            final ItemCommentBinding binding = ((CustomViewHolder)holder).getBinding();
+            final ItemCommentBinding binding = ((CustomViewHolder) holder).getBinding();
 
-            FirebaseDatabase
-                    .getInstance()
-                    .getReference()
-                    .child("profileImages")
-                    .child(comments.get(position).uid).addListenerForSingleValueEvent(new ValueEventListener() {
+            // 유저 이미지
+            firebaseDatabase.getReference().child("users").child(comments.get(position).uid).child("profileImage").addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if (snapshot.exists()) {
-
-                        @SuppressWarnings("VisibleForTests")
-                        String url = snapshot.getValue().toString();
-
-                        Glide.with(holder.itemView.getContext())
-                                .load(url)
+                    String img = snapshot.getValue(String.class);
+                    if (img == null) {
+                        Glide.with(getApplicationContext())
+                                .load(R.drawable.icon_profile)
+                                .apply(new RequestOptions().circleCrop()).into(binding.itemcommentUserImage);
+                    } else {
+                        Glide.with(getApplicationContext())
+                                .load(img)
                                 .apply(new RequestOptions().circleCrop()).into(binding.itemcommentUserImage);
                     }
+
                 }
 
                 @Override
@@ -200,7 +230,7 @@ public class CommentActivity extends AppCompatActivity {
             binding.itemcommentLayout.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    if(user.equals(comments.get(position).userId)){
+                    if (user.getEmail().equals(comments.get(position).userId)) {
                         bottomSheetDialog.show();
 
                         view.findViewById(R.id.txt_delete).setOnClickListener(new View.OnClickListener() {
@@ -208,7 +238,6 @@ public class CommentActivity extends AppCompatActivity {
                             public void onClick(View v) {
                                 deleteContent(position);
                                 bottomSheetDialog.dismiss();
-
                             }
                         });
                     }
@@ -217,7 +246,7 @@ public class CommentActivity extends AppCompatActivity {
             });
         }
 
-        private void deleteContent(int position){
+        private void deleteContent(int position) {
             firebaseDatabase.getReference().child("feed").child(imageUid).child("comments").child(contentUidList.get(position)).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
@@ -238,15 +267,18 @@ public class CommentActivity extends AppCompatActivity {
             return comments.size();
         }
 
-        private class CustomViewHolder extends RecyclerView.ViewHolder{
-            
+        private class CustomViewHolder extends RecyclerView.ViewHolder {
+
             private ItemCommentBinding binding;
 
             public CustomViewHolder(@NonNull View itemView) {
                 super(itemView);
                 binding = DataBindingUtil.bind(itemView);
             }
-            ItemCommentBinding getBinding() {return binding;}
+
+            ItemCommentBinding getBinding() {
+                return binding;
+            }
         }
     }
 }

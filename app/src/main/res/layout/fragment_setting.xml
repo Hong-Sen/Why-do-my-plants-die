@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:orientation="vertical">
 
     <androidx.appcompat.widget.Toolbar
         android:layout_width="match_parent"
@@ -67,14 +67,28 @@
                     android:layout_margin="10dp"
                     android:background="@drawable/setting_background" />
 
-                <ImageView
-                    android:id="@+id/iv_profile"
+                <RelativeLayout
                     android:layout_width="200dp"
                     android:layout_height="200dp"
                     android:layout_centerHorizontal="true"
-                    android:layout_marginTop="40dp"
-                    android:background="@drawable/circle_border_white"
-                    android:padding="10dp" />
+                    android:layout_marginTop="40dp">
+
+                    <ImageView
+                        android:id="@+id/iv_profile"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/circle_border_white"
+                        android:padding="10dp" />
+
+                    <ProgressBar
+                        android:id="@+id/progress_bar"
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:layout_centerHorizontal="true"
+                        android:layout_centerVertical="true"
+                        android:visibility="invisible" />
+
+                </RelativeLayout>
 
             </RelativeLayout>
 
@@ -105,7 +119,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="2dp"
                 android:layout_margin="10dp"
-                android:background="#B8B4B4"/>
+                android:background="#B8B4B4" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/grid_recyclerview"
