@@ -226,24 +226,23 @@ public class CommentActivity extends AppCompatActivity {
             View view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.bottomsheet_delete_post, (ViewGroup) findViewById(R.id.bottomsheet));
             bottomSheetDialog.setContentView(view);
 
-            // 댓글 layout
-            binding.itemcommentLayout.setOnLongClickListener(new View.OnLongClickListener() {
+            // more 버튼
+            binding.itemcommentMore.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public boolean onLongClick(View v) {
+                public void onClick(View v) {
                     if (user.getEmail().equals(comments.get(position).userId)) {
                         bottomSheetDialog.show();
-
-                        view.findViewById(R.id.txt_delete).setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                deleteContent(position);
-                                bottomSheetDialog.dismiss();
-                            }
-                        });
                     }
-                    return true;
+                    view.findViewById(R.id.txt_delete).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            deleteContent(position);
+                            bottomSheetDialog.dismiss();
+                        }
+                    });
                 }
             });
+
         }
 
         private void deleteContent(int position) {

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -18,43 +17,49 @@
                 android:id="@+id/iv_logo"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
-                android:src="@drawable/icon_logo"
-                android:layout_centerVertical="true"/>
+                android:layout_centerVertical="true"
+                android:src="@drawable/icon_logo" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
                 android:layout_marginLeft="10dp"
                 android:layout_toRightOf="@+id/iv_logo"
                 android:fontFamily="@font/tvnbold"
                 android:text="Search"
                 android:textColor="@color/black"
-                android:textSize="40dp"
-                android:layout_centerVertical="true"/>
+                android:textSize="40dp" />
 
         </RelativeLayout>
 
     </androidx.appcompat.widget.Toolbar>
 
-    <!-- layout_behavior : 자식뷰의 변화 상태를 부모뷰/다른 자식뷰한테 전달 (여기서는 스크롤했을 경우 다른 자식뷰에게 전달한다) -->
-    <androidx.core.widget.NestedScrollView
-        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <LinearLayout
-            android:orientation="vertical"
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:visibility="gone"/>
+
+        <!-- layout_behavior : 자식뷰의 변화 상태를 부모뷰/다른 자식뷰한테 전달 (여기서는 스크롤했을 경우 다른 자식뷰에게 전달한다) -->
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
             <WebView
                 android:id="@+id/webView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="match_parent" />
 
-        </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
 
-    </androidx.core.widget.NestedScrollView>
-
+    </RelativeLayout>
 
 </LinearLayout>
