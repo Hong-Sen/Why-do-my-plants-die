@@ -1,50 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <androidx.appcompat.widget.Toolbar
         android:layout_width="match_parent"
-        android:layout_height="53dp"
-        android:backgroundTint="#00000000"
-        android:gravity="left">
+        android:layout_height="?android:actionBarSize">
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <TextView
-                android:id="@+id/textView"
-                android:layout_width="267dp"
-                android:layout_height="45dp"
-                android:layout_marginStart="43dp"
-                android:layout_marginLeft="43dp"
-                android:layout_marginTop="4dp"
-                android:fontFamily="@font/tvnbold"
-                android:gravity="center_vertical"
-                android:text="My Forest"
-                android:textColor="@color/black"
-                android:textSize="32dp" />
-
             <ImageView
-                android:id="@+id/imageView5"
-                android:layout_width="119dp"
-                android:layout_height="71dp"
-                android:layout_marginStart="-39dp"
-                android:layout_marginLeft="-39dp"
-                android:layout_marginBottom="-20dp"
-                app:srcCompat="@drawable/logo_icon2" />
+                android:id="@+id/iv_logo"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:src="@drawable/icon_logo"
+                android:layout_centerVertical="true"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_toRightOf="@+id/iv_logo"
+                android:fontFamily="@font/tvnbold"
+                android:text="Alarm"
+                android:textColor="@color/black"
+                android:textSize="40dp"
+                android:layout_centerVertical="true"/>
 
         </RelativeLayout>
 
     </androidx.appcompat.widget.Toolbar>
 
     <FrameLayout
-        android:layout_gravity="center_horizontal"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_gravity="center_horizontal"
         android:background="@color/layoutGreen">
 
         <androidx.recyclerview.widget.RecyclerView
@@ -61,7 +55,7 @@
             android:layout_marginRight="23dp"
             android:layout_marginBottom="85dp"
             android:src="@drawable/icon_upload"
-            app:backgroundTint="#68D19F" />
+            app:backgroundTint="@color/floatingBtnColor" />
     </FrameLayout>
 
 </LinearLayout>

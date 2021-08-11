@@ -13,4 +13,5 @@
     <color name="aquaGreen">#ccffe6</color>
     <color name="layoutGreen">#9EE2C0</color>
     <color name="introGreen">#CBE2D7</color>
+    <color name="floatingBtnColor">#68D19F</color>
 </resources>
