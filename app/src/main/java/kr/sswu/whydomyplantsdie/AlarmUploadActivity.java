@@ -65,7 +65,7 @@ public class AlarmUploadActivity extends AppCompatActivity {
     private FirebaseAuth firebaseAuth;
     private ImageView imgPhoto, btnClose, imgCamera;
     private EditText editName;
-    private TextView editWater;
+    private TextView editHeart;
     private Spinner spinnerCycle;
     private Button btnUpload;
 
@@ -81,7 +81,7 @@ public class AlarmUploadActivity extends AppCompatActivity {
         imgPhoto = findViewById(R.id.alarm_img_photo);
         imgCamera = findViewById(R.id.img_camera);
         editName = findViewById(R.id.alarm_edit_name);
-        editWater = findViewById(R.id.alarm_edit_water);
+        editHeart = findViewById(R.id.alarm_edit_heart);
         spinnerCycle = findViewById(R.id.alarm_edit_cycle);
         btnClose = findViewById(R.id.btn_close);
         btnUpload = findViewById(R.id.btn_upload);
@@ -154,7 +154,7 @@ public class AlarmUploadActivity extends AppCompatActivity {
             }
         });
 
-        editWater.setOnClickListener(new View.OnClickListener() {
+        editHeart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 DatePickerDialog.OnDateSetListener myDatePicker = new DatePickerDialog.OnDateSetListener() {
@@ -170,9 +170,9 @@ public class AlarmUploadActivity extends AppCompatActivity {
             }
 
             private void updateDate() {
-                String myFormat = "yyyy년 MM월 dd일";    // 출력형식   2018년 11월 28일
+                String myFormat = "yyyy년 MM월 dd일";    // 출력형식   2021년 08월 06일
                 SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.KOREA);
-                editWater.setText(sdf.format(myCalendar.getTime()));
+                editHeart.setText(sdf.format(myCalendar.getTime()));
             }
         });
 
@@ -315,7 +315,7 @@ public class AlarmUploadActivity extends AppCompatActivity {
                 alarmModel.uid = firebaseAuth.getCurrentUser().getUid();
                 //알람 설명
                 alarmModel.plantName = editName.getText().toString();
-                alarmModel.water = editWater.getText().toString();
+                alarmModel.heart = editHeart.getText().toString();
                 alarmModel.cycle = spinnerCycle.getSelectedItem().toString();
                 //유저의 아이디
                 alarmModel.userid = firebaseAuth.getCurrentUser().getEmail();

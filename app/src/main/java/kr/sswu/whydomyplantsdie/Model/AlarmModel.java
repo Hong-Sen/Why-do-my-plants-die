@@ -8,7 +8,7 @@ public class AlarmModel {
     public String image;
     public String imageUrl;
     public String plantName;
-    public String water;
+    public String heart;
     public String cycle;
     public String btnOnoff;
     public Map<String, AlarmModel.AlarmItem> alarmItems;
@@ -19,7 +19,7 @@ public class AlarmModel {
         public String image;
         public String imageUrl;
         public String plantName;
-        public String water;
+        public String heart;
         public String cycle;
         public String btnOnoff;
         public String alarmItem;
@@ -69,24 +69,13 @@ public class AlarmModel {
 
     public String getCycle() { return cycle; }
 
-    public void setWater(String water) {
-        this.water = water;
+    public void setHeart(String heart) {
+        this.heart = heart;
     }
 
-    public String getWater() {
-        return water;
+    public String getHeart() {
+        return heart;
     }
-
-    /*
-    public void setTime(String time) {
-        this.time = time;
-    }
-
-    public String getTime() {
-        return time;
-    }
-
-     */
 
     public void setBtnOnoff(String btnOnoff) { this.btnOnoff = btnOnoff; }
 

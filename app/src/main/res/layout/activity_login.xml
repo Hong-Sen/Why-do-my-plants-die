@@ -27,7 +27,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="180dp"
         android:gravity="center"
-        android:text="우리집 식물을 왜 죽을까?"
+        android:text="우리집 식물은 왜 죽을까?"
         android:textColor="@color/deepGreen"
         android:textSize="25dp"
         android:textStyle="bold" />
