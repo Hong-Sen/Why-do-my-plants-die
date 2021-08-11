@@ -102,21 +102,21 @@
             android:background="@color/layoutGreen">
 
             <ImageView
-                android:id="@+id/img_water"
+                android:id="@+id/img_heart"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_centerVertical="true"
                 android:layout_marginLeft="20dp"
-                android:src="@drawable/icon_water" />
+                android:src="@drawable/icon_heart" />
 
             <TextView
-                android:id="@+id/alarm_edit_water"
+                android:id="@+id/alarm_edit_heart"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:gravity="center_vertical"
                 android:layout_marginLeft="30dp"
-                android:layout_toRightOf="@+id/img_water"
-                android:hint="마지막 물 준 날짜"
+                android:layout_toRightOf="@+id/img_heart"
+                android:hint="입양 날짜"
                 android:textColor="@color/black"
                 android:textSize="16sp"/>
         </RelativeLayout>
@@ -128,12 +128,12 @@
             android:background="@color/layoutGreen">
 
             <ImageView
-                android:id="@+id/img_alarm"
+                android:id="@+id/img_cycle"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_centerVertical="true"
                 android:layout_marginLeft="20dp"
-                android:src="@drawable/icon_calendar" />
+                android:src="@drawable/icon_water" />
 
             <Spinner
                 android:id="@+id/alarm_edit_cycle"
@@ -142,7 +142,7 @@
                 android:layout_height="50dp"
                 android:gravity="center_vertical"
                 android:layout_marginLeft="30dp"
-                android:layout_toRightOf="@+id/img_alarm"
+                android:layout_toRightOf="@+id/img_cycle"
                 android:layout_marginRight="40dp" />
 
         </RelativeLayout>

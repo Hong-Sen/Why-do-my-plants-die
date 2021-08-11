@@ -79,7 +79,7 @@ public class AlarmFragment extends Fragment {
         uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         btnaddAlarm = view.findViewById(R.id.btn_addAlarm);
-        btnOnOff = (Switch) view.findViewById(R.id.itemAlarm_btn_onoff);
+        btnOnOff = (Switch) view.findViewById(R.id.itemAlarm_btnOnoff);
 
         recyclerView = (RecyclerView) view.findViewById(R.id.alarm_recyclerview);
         recyclerView.setHasFixedSize(true); // 리사이클러뷰 기존성능 강화
@@ -218,7 +218,7 @@ public class AlarmFragment extends Fragment {
                     .centerCrop()
                     .apply(requestOptions).into((binding.itemAlarmImage));
             binding.itemAlarmPlantName.setText(alarmList.get(position).getPlantName());
-            binding.itemAlarmWater.setText(alarmList.get(position).getWater());
+            binding.itemAlarmHeart.setText(alarmList.get(position).getHeart());
             binding.itemAlarmCycle.setText(alarmList.get(position).getCycle() + " 주기");
             //(CustomViewHolder)holder).btnOnOff.setOnCheckedChangeListener(new View.) { };
 
