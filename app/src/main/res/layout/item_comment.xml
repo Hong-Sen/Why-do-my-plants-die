@@ -13,8 +13,9 @@
 
     <ImageView
         android:id="@+id/itemcomment_user_image"
-        android:layout_width="35dp"
-        android:layout_height="35dp"/>
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:src="@drawable/icon_profile"/>
 
     <TextView
         android:id="@+id/itemcomment_user_id"

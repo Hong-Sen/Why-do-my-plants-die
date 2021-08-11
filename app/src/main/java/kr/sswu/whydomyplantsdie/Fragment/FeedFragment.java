@@ -1,12 +1,18 @@
 package kr.sswu.whydomyplantsdie.Fragment;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -18,6 +24,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -31,6 +38,7 @@ import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 
@@ -48,6 +56,7 @@ public class FeedFragment extends Fragment {
     private Button btn_addPost;
     private FirebaseStorage firebaseStorage;
     private FirebaseDatabase firebaseDatabase;
+    private Dialog postDialog;
 
     @Nullable
     @Override
@@ -62,6 +71,10 @@ public class FeedFragment extends Fragment {
                 startActivity(intent);
             }
         });
+
+        postDialog = new Dialog(rootView.getContext());
+        postDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        postDialog.setContentView(R.layout.item_post_dialog);
 
         firebaseStorage = FirebaseStorage.getInstance();
         firebaseDatabase = FirebaseDatabase.getInstance();
@@ -126,21 +139,6 @@ public class FeedFragment extends Fragment {
             final int finalPosition = position;
             final ItemDetailPostBinding binding = ((CustomViewHolder) holder).getBinding();
 
-            // 유저 이미지
-            if(contentDTOs.get(position).userProfileImage != null){
-                Glide.with(holder.itemView.getContext())
-                        .load(contentDTOs.get(position).userProfileImage)
-                        .apply(new RequestOptions().circleCrop()).into(binding.itemdetailpostUserImgae);
-            }
-            else{
-                Glide.with(holder.itemView.getContext())
-                        .load(R.drawable.icon_profile)
-                        .apply(new RequestOptions().circleCrop()).into(binding.itemdetailpostUserImgae);
-            }
-
-            // 유저 아이디
-            binding.itemdetailpostUserId.setText(contentDTOs.get(position).userId);
-
             // 식물 이미지
             Glide.with(holder.itemView.getContext())
                     .load(contentDTOs.get(position).imageUrl)
@@ -149,6 +147,14 @@ public class FeedFragment extends Fragment {
                     .error(R.drawable.icon_close)
                     .into(binding.itemdetailpostPlantImage);
 
+            // 식물 이미지 클릭시 다이얼로그 띄우기
+            binding.itemdetailpostPlantImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showDialog(contentDTOs.get(position).uid,contentDTOs.get(position).userId,contentDTOs.get(position).imageUrl,contentDTOs.get(position).plantKind,contentDTOs.get(position).timestamp,contentDTOs.get(position).explain);
+                }
+            });
+
             //좋아요 이미지
             binding.itemdetailpostLike.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -156,20 +162,14 @@ public class FeedFragment extends Fragment {
                     likeEvent(finalPosition);
                 }
             });
-            if (contentDTOs.get(position).LIKES.containsKey(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+            if (contentDTOs.get(position).LIKES.containsKey(user.getUid())) {
                 binding.itemdetailpostLike.setImageResource(R.drawable.icon_after_like);
             } else {
-                binding.itemdetailpostLike.setImageResource(R.drawable.icon_before_like);
+                binding.itemdetailpostLike.setImageResource(R.drawable.icon_green_heart);
             }
 
             //좋아요 개수
-            binding.itemdetailpostLikeCnt.setText("좋아요 " + contentDTOs.get(position).likeCount + "개");
-
-            // 설명란 유저 아이디 텍스트
-            binding.itemdetailpostContentUserid.setText(contentDTOs.get(position).userShortId);
-
-            // 설명 텍스트
-            binding.itemdetailpostContent.setText(contentDTOs.get(position).explain);
+            binding.itemdetailpostLikeCnt.setText(contentDTOs.get(position).likeCount + " ");
 
             // 삭제 bottomsheet
             LayoutInflater inflater = (LayoutInflater) requireActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -204,7 +204,6 @@ public class FeedFragment extends Fragment {
                     intent.putExtra("imageUid", contentUidList.get(position));
                     intent.putExtra("destinationUid", contentDTOs.get(finalPosition).uid);
 
-                    //intent.putExtra("writerImgae", contentDTOs.get(finalPosition));
                     intent.putExtra("writerShortId", contentDTOs.get(position).userShortId);
                     intent.putExtra("writerExplain", contentDTOs.get(position).explain);
 
@@ -212,10 +211,7 @@ public class FeedFragment extends Fragment {
                 }
             });
 
-            // 식물 종류
-            binding.itemdetailpostPlantName.bringToFront();
-            binding.itemdetailpostPlantName.setText(contentDTOs.get(position).plantKind);
-
+           // binding.itemdetailpostCommentCnt.setText(contentDTOs.get(position).commentCount + " ");
         }
 
         private void deleteContent(int position) {
@@ -282,6 +278,8 @@ public class FeedFragment extends Fragment {
                     });
         }
 
+
+
         private class CustomViewHolder extends RecyclerView.ViewHolder {
 
             //data binding
@@ -296,6 +294,75 @@ public class FeedFragment extends Fragment {
                 return binding;
             }
         }
+    }
+
+    public void showDialog(String userUid, String userID, String plantImagePath, String plantKind, String date, String explain){
+        postDialog.show();
+
+        ImageView iv_close = postDialog.findViewById(R.id.itempostdialog_close);
+        ImageView iv_userImage = postDialog.findViewById(R.id.itempostdialog_user_image);
+        TextView tv_userId = postDialog.findViewById(R.id.itempostdialog_user_id);
+        ImageView iv_plantImage = postDialog.findViewById(R.id.itempostdialog_plant_image);
+        TextView tv_plantKind = postDialog.findViewById(R.id.itempostdialog_plant_kind);
+        TextView tv_date = postDialog.findViewById(R.id.itempostdialog_date);
+        TextView tv_explain = postDialog.findViewById(R.id.itempostdialog_explain);
+
+        iv_close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                postDialog.dismiss();
+            }
+        });
+
+
+        // 유저 이미지
+        firebaseDatabase.getReference().child("users").child(userUid).child("profileImage").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String img = snapshot.getValue(String.class);
+                if(img == null){
+                    try {
+                        Glide.with(getContext())
+                                .load(R.drawable.icon_profile)
+                                .apply(new RequestOptions().circleCrop()).into(iv_userImage);
+                    } catch (Exception e) {}
+                }
+                else{
+                    try {
+                        Glide.with(getContext())
+                                .load(img)
+                                .apply(new RequestOptions().circleCrop()).into(iv_userImage);
+                    } catch (Exception e) {}
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+        // 유저 아이디
+        tv_userId.setText(userID);
+
+        // 식물 이미지
+        Glide.with(getContext())
+                .load(plantImagePath)
+                .fitCenter()
+                .placeholder(R.drawable.icon_loading)
+                .error(R.drawable.icon_close)
+                .into(iv_plantImage);
+
+        // 식물 종류
+        tv_plantKind.setText(plantKind);
+
+        // 게시 날짜
+        tv_date.setText(date);
+
+        // 설명
+        tv_explain.setText(explain);
+
     }
 }
 

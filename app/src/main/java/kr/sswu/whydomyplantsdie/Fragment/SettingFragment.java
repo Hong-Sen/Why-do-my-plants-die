@@ -3,6 +3,7 @@ package kr.sswu.whydomyplantsdie.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,14 +27,16 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
+import com.bumptech.glide.request.target.Target;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -58,12 +62,16 @@ public class SettingFragment extends Fragment {
     private final int PICK_IMAGE_FROM_ALBUM = 1;
     private ImageView setting;
     private ImageView profileImage;
+    private ProgressBar progressBar;
     private TextView userId;
     private String photoUrl;
     private FirebaseStorage firebaseStorage;
     private FirebaseDatabase firebaseDatabase;
     private FirebaseAuth firebaseAuth;
     private FirebaseUser user;
+    private String profileImagePath;
+
+    private boolean isDisableRefreshingProfile = false;
 
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -73,23 +81,13 @@ public class SettingFragment extends Fragment {
         ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_setting, container, false);
 
         profileImage = (ImageView) rootView.findViewById(R.id.iv_profile);
+        progressBar = (ProgressBar) rootView.findViewById(R.id.progress_bar);
         userId = (TextView) rootView.findViewById(R.id.tv_userId);
         setting = (ImageView) rootView.findViewById(R.id.iv_setting);
         firebaseStorage = FirebaseStorage.getInstance(); //Firebase storage
         firebaseDatabase = FirebaseDatabase.getInstance(); //Firebase Database
         firebaseAuth = FirebaseAuth.getInstance(); //Firebase Auth
         user = FirebaseAuth.getInstance().getCurrentUser();
-
-        if (user.getPhotoUrl() != null) {
-            Log.d(TAG, "photo: " + user.getPhotoUrl().toString());
-            Glide.with(this)
-                    .load(user.getPhotoUrl())
-                    .apply(new RequestOptions().circleCrop()).into(profileImage);
-        } else {
-            Log.d(TAG, "null **");
-            Glide.with(this).load(R.drawable.icon_profile).circleCrop().into(profileImage);
-        }
-        //profileImage.bringToFront();
 
         String arr[] = user.getEmail().split("@");
         userId.setText(arr[0]);
@@ -165,10 +163,7 @@ public class SettingFragment extends Fragment {
             if (resultCode == RESULT_OK) {
                 try {
                     photoUrl = getRealPathFromUri(data.getData());
-
-                    updateProfile();
-
-                    Glide.with(this).load(photoUrl).circleCrop().into(profileImage);
+                    uploadProfileToFirebase();
 
                 } catch (Exception e) {
 
@@ -179,35 +174,82 @@ public class SettingFragment extends Fragment {
         }
     }
 
-    private void updateProfile() {
+    @Override
+    public void onResume() {
+        super.onResume();
+        refreshProfile();
+    }
+
+    private void refreshProfile() {
+        if (isDisableRefreshingProfile) {
+            isDisableRefreshingProfile = false;
+            return;
+        }
+        firebaseDatabase.getReference().child("users").child(user.getUid()).child("profileImage").get().addOnSuccessListener(new OnSuccessListener<DataSnapshot>() {
+            @Override
+            public void onSuccess(DataSnapshot dataSnapshot) {
+                profileImagePath = dataSnapshot.getValue(String.class);
+
+                if (profileImagePath == null) {
+                    Glide.with(getContext())
+                            .load(R.drawable.icon_profile)
+                            .apply(new RequestOptions().circleCrop())
+                            .into(profileImage);
+                } else {
+                    Glide.with(getContext())
+                            .load(profileImagePath)
+                            .addListener(new RequestListener<Drawable>() {
+                                @Override
+                                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                    return false;
+                                }
+
+                                @Override
+                                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                    progressBar.setVisibility(View.GONE);
+                                    return false;
+                                }
+                            })
+                            .apply(new RequestOptions().circleCrop())
+                            .into(profileImage);
+                }
+
+            }
+        });
+    }
+
+    private void uploadProfileToFirebase() {
+
+        isDisableRefreshingProfile = true;
+        progressBar.setVisibility(View.VISIBLE);
+
         File file = new File(photoUrl);
         Uri contentUri = Uri.fromFile(file);
+
+        String timeStamp = String.valueOf(System.nanoTime());
         StorageReference storageRef =
-                firebaseStorage.getReferenceFromUrl("gs://why-do-my-plants-die.appspot.com/").child("profile-image").child(contentUri.getLastPathSegment());
+                firebaseStorage.getReferenceFromUrl("gs://why-do-my-plants-die.appspot.com/").child("profileImage").child(user.getUid()).child(timeStamp);
         UploadTask uploadTask = storageRef.putFile(contentUri);
 
         String imagePath = "https://firebasestorage.googleapis.com/v0/b/" + "why-do-my-plants-die.appspot.com"
-                + "/o/" + "profile-image%2F" + contentUri.getLastPathSegment().toString() + "?alt=media";
+                + "/o/" + "profileImage%2F" + user.getUid() + "%2F" + timeStamp + "?alt=media";
 
+        Log.d(TAG, "imagepath: " + imagePath);
         uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                UserProfileChangeRequest profileChangeRequest = new UserProfileChangeRequest.Builder()
-                        .setDisplayName(user.getEmail())
-                        .setPhotoUri(Uri.parse(imagePath))
-                        .build();
 
-                user.updateProfile(profileChangeRequest)
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()) {
-                                    Log.d(TAG, "User profile updated");
-                                }
-                            }
-                        });
+                firebaseDatabase.getReference().child("users").child(user.getUid()).child("profileImage").setValue(imagePath);
+                refreshProfile();
             }
-        });
+        })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getContext(), "프로필 사진 업데이트 실패",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
 
 
     }
