@@ -53,6 +53,7 @@ import static android.widget.Toast.LENGTH_SHORT;
 
 public class FeedFragment extends Fragment {
 
+    private Context mContext;
     private FirebaseUser user;
     private FloatingActionButton btn_addPost;
     private FirebaseStorage firebaseStorage;
@@ -335,14 +336,14 @@ public class FeedFragment extends Fragment {
                 String img = snapshot.getValue(String.class);
                 if(img == null){
                     try {
-                        Glide.with(getContext())
+                        Glide.with(mContext)
                                 .load(R.drawable.icon_profile)
                                 .apply(new RequestOptions().circleCrop()).into(iv_userImage);
                     } catch (Exception e) {}
                 }
                 else{
                     try {
-                        Glide.with(getContext())
+                        Glide.with(mContext)
                                 .load(img)
                                 .apply(new RequestOptions().circleCrop()).into(iv_userImage);
                     } catch (Exception e) {}
@@ -360,7 +361,7 @@ public class FeedFragment extends Fragment {
         tv_userId.setText(userID);
 
         // 식물 이미지
-        Glide.with(getContext())
+        Glide.with(mContext)
                 .load(plantImagePath)
                 .fitCenter()
                 .placeholder(R.drawable.icon_loading)
@@ -375,7 +376,12 @@ public class FeedFragment extends Fragment {
 
         // 설명
         tv_explain.setText(explain);
+    }
 
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        mContext = context;
     }
 }
 
