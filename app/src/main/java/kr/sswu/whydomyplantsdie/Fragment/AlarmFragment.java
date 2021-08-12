@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -17,6 +18,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -31,10 +33,13 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
@@ -57,10 +62,12 @@ public class AlarmFragment extends Fragment {
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
     private RecyclerView.LayoutManager layoutManager;
-    private ArrayList<AlarmModel> alarmList;
+    private ArrayList<AlarmModel> alarmModels;
     private FirebaseDatabase database;
     private FirebaseStorage firebaseStorage;
-    private FloatingActionButton btnaddAlarm;
+    private FirebaseUser user;
+    private FloatingActionButton btnAddAlarm;
+    private Switch btnOnOff;
     private View view;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -69,22 +76,21 @@ public class AlarmFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_alarm, container, false);
 
+        user = FirebaseAuth.getInstance().getCurrentUser();
         uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        btnaddAlarm = view.findViewById(R.id.btn_addAlarm);
+        btnAddAlarm = view.findViewById(R.id.btn_addAlarm);
         recyclerView = view.findViewById(R.id.alarm_recyclerview);
         recyclerView.setHasFixedSize(true); // 리사이클러뷰 기존성능 강화
         layoutManager = new LinearLayoutManager(view.getContext());
         recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(new AlarmAdapter()); // 리사이클러뷰에 어댑터 연결
+        recyclerView.setAdapter(new AlarmAdapter(getActivity(), alarmModels)); // 리사이클러뷰에 어댑터 연결
 
-        loadAlarm();
-
-        alarmList = new ArrayList<>(); // User 객체를 담을 어레이 리스트 (어댑터쪽으로)
+        alarmModels = new ArrayList<>(); // User 객체를 담을 어레이 리스트 (어댑터쪽으로)
         database = FirebaseDatabase.getInstance(); // 파이어베이스 데이터베이스 연동
         firebaseStorage = FirebaseStorage.getInstance();
 
         //alarm upload activity로 이동
-        btnaddAlarm.setOnClickListener(new View.OnClickListener() {
+        btnAddAlarm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getContext(), AlarmUploadActivity.class);
@@ -110,46 +116,16 @@ public class AlarmFragment extends Fragment {
         return view;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    private void loadAlarm() {
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Alarm");
-        ref.orderByChild("uid").equalTo(uid).addValueEventListener(new ValueEventListener() {
-
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                alarmList.clear();
-
-                for (DataSnapshot ds : snapshot.getChildren()) {
-                    String uid = ds.child("uid").getValue().toString();
-                    String userid = ds.child("userid").getValue().toString();
-                    String imageUrl = ds.child("imageUrl").getValue().toString();
-                    String plantName = ds.child("plantName").getValue().toString();
-                    String water = ds.child("water").getValue().toString();
-                    String cycle = ds.child("cycle").getValue().toString();
-
-                    AlarmModel item = new AlarmModel();
-
-                    alarmList.add(item);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getActivity(), "" + error.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
     public class AlarmAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         private final ArrayList<AlarmModel> alarmList;
         private final ArrayList<String> uidList;
 
-        AlarmAdapter() {
+        public AlarmAdapter(FragmentActivity activity, ArrayList<AlarmModel> alarmModels) {
             alarmList = new ArrayList<>();
             uidList = new ArrayList<>();
 
-            FirebaseDatabase.getInstance().getReference().child("alarm").addValueEventListener(new ValueEventListener() {
+            FirebaseDatabase.getInstance().getReference().child("alarm").orderByChild("uid").equalTo(user.getUid()).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     alarmList.clear();
@@ -173,6 +149,7 @@ public class AlarmFragment extends Fragment {
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_alarm, parent, false);
+            btnOnOff = view.findViewById(R.id.itemAlarm_btnOnoff);
             return new CustomViewHolder(view);
         }
 
@@ -195,9 +172,9 @@ public class AlarmFragment extends Fragment {
             //fcm 토픽 제어
             sharedPreferences = getActivity().getSharedPreferences(" ", MODE_PRIVATE);
             final SharedPreferences.Editor editor = sharedPreferences.edit();
-            binding.itemAlarmBtnOnoff.setChecked(sharedPreferences.getBoolean(ex, true));
-            FirebaseMessaging.getInstance().subscribeToTopic("30");
-            binding.itemAlarmBtnOnoff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            btnOnOff.setChecked(sharedPreferences.getBoolean(ex, true));
+            FirebaseMessaging.getInstance().subscribeToTopic("90");
+            btnOnOff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     if (isChecked) {
@@ -206,43 +183,43 @@ public class AlarmFragment extends Fragment {
                                 break;
                             case "1일":
                                 editor.putBoolean(ex, true); // value to store
-                                FirebaseMessaging.getInstance().subscribeToTopic("1일");
+                                FirebaseMessaging.getInstance().subscribeToTopic("1");
                                 break;
                             case "2일":
                                 editor.putBoolean(ex, true); // value to store
-                                FirebaseMessaging.getInstance().subscribeToTopic("2일");
+                                FirebaseMessaging.getInstance().subscribeToTopic("2");
                                 break;
                             case "3일":
                                 editor.putBoolean(ex, true); // value to store
-                                FirebaseMessaging.getInstance().subscribeToTopic("3일");
+                                FirebaseMessaging.getInstance().subscribeToTopic("3");
                                 break;
                             case "5일":
                                 editor.putBoolean(ex, true); // value to store
-                                FirebaseMessaging.getInstance().subscribeToTopic("5일");
+                                FirebaseMessaging.getInstance().subscribeToTopic("5");
                                 break;
                             case "10일":
                                 editor.putBoolean(ex, true); // value to store
-                                FirebaseMessaging.getInstance().subscribeToTopic("10일");
+                                FirebaseMessaging.getInstance().subscribeToTopic("10");
                                 break;
                             case "15일":
                                 editor.putBoolean(ex, true); // value to store
-                                FirebaseMessaging.getInstance().subscribeToTopic("15일");
+                                FirebaseMessaging.getInstance().subscribeToTopic("15");
                                 break;
                             case "20일":
                                 editor.putBoolean(ex, true); // value to store
-                                FirebaseMessaging.getInstance().subscribeToTopic("20일");
+                                FirebaseMessaging.getInstance().subscribeToTopic("20");
                                 break;
                             case "한 달":
                                 editor.putBoolean(ex, true); // value to store
-                                FirebaseMessaging.getInstance().subscribeToTopic("한 달");
+                                FirebaseMessaging.getInstance().subscribeToTopic("30");
                                 break;
                             case "두 달":
                                 editor.putBoolean(ex, true); // value to store
-                                FirebaseMessaging.getInstance().subscribeToTopic("두 달");
+                                FirebaseMessaging.getInstance().subscribeToTopic("60");
                                 break;
                             case "세 달":
                                 editor.putBoolean(ex, true); // value to store
-                                FirebaseMessaging.getInstance().subscribeToTopic("세 달");
+                                FirebaseMessaging.getInstance().subscribeToTopic("90");
                                 break;
                         }
                     } else {
@@ -251,43 +228,43 @@ public class AlarmFragment extends Fragment {
                                 break;
                             case "1일":
                                 editor.putBoolean(ex, false); // value to store
-                                FirebaseMessaging.getInstance().unsubscribeFromTopic("1일");
+                                FirebaseMessaging.getInstance().unsubscribeFromTopic("1");
                                 break;
                             case "2일":
                                 editor.putBoolean(ex, false); // value to store
-                                FirebaseMessaging.getInstance().unsubscribeFromTopic("2일");
+                                FirebaseMessaging.getInstance().unsubscribeFromTopic("2");
                                 break;
                             case "3일":
                                 editor.putBoolean(ex, false); // value to store
-                                FirebaseMessaging.getInstance().unsubscribeFromTopic("3일");
+                                FirebaseMessaging.getInstance().unsubscribeFromTopic("3");
                                 break;
                             case "5일":
                                 editor.putBoolean(ex, false); // value to store
-                                FirebaseMessaging.getInstance().unsubscribeFromTopic("5일");
+                                FirebaseMessaging.getInstance().unsubscribeFromTopic("5");
                                 break;
                             case "10일":
                                 editor.putBoolean(ex, false); // value to store
-                                FirebaseMessaging.getInstance().unsubscribeFromTopic("10일");
+                                FirebaseMessaging.getInstance().unsubscribeFromTopic("10");
                                 break;
                             case "15일":
                                 editor.putBoolean(ex, false); // value to store
-                                FirebaseMessaging.getInstance().unsubscribeFromTopic("15일");
+                                FirebaseMessaging.getInstance().unsubscribeFromTopic("15");
                                 break;
                             case "20일":
                                 editor.putBoolean(ex, false); // value to store
-                                FirebaseMessaging.getInstance().unsubscribeFromTopic("20일");
+                                FirebaseMessaging.getInstance().unsubscribeFromTopic("20");
                                 break;
                             case "한 달":
                                 editor.putBoolean(ex, false); // value to store
-                                FirebaseMessaging.getInstance().unsubscribeFromTopic("한 달");
+                                FirebaseMessaging.getInstance().unsubscribeFromTopic("30");
                                 break;
                             case "두 달":
                                 editor.putBoolean(ex, false); // value to store
-                                FirebaseMessaging.getInstance().unsubscribeFromTopic("두 달");
+                                FirebaseMessaging.getInstance().unsubscribeFromTopic("60");
                                 break;
                             case "세 달":
                                 editor.putBoolean(ex, false); // value to store
-                                FirebaseMessaging.getInstance().unsubscribeFromTopic("세 달");
+                                FirebaseMessaging.getInstance().unsubscribeFromTopic("90");
                                 break;
                         }
                     }
