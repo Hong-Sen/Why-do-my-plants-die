@@ -38,16 +38,22 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.opencsv.CSVReaderHeaderAware;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import kr.sswu.whydomyplantsdie.Model.ContentDTO;
 
@@ -104,7 +110,7 @@ public class WritePostActivity extends AppCompatActivity {
         bottomSheetDialog.setContentView(view);
 
         plantList = new ArrayList<String>();
-        autoCompleteTextView = (AutoCompleteTextView)findViewById(R.id.autoCompletetv);
+        autoCompleteTextView = (AutoCompleteTextView) findViewById(R.id.autoCompletetv);
         settingPlantList();
         autoCompleteTextView.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, plantList));
 
@@ -191,18 +197,17 @@ public class WritePostActivity extends AppCompatActivity {
         return image;
     }
 
-        @Override
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         // 카메라로 사진을 찍어 이미지 가져오는 경우
-            if (requestCode == REQUEST_TAKE_PHOTO) {
-                if(resultCode == RESULT_OK){
-                    imgAddPhoto.setImageURI(photoURI);
-                }
-                else if (resultCode == RESULT_CANCELED) {
-                    Toast.makeText(this, "사진 선택 취소", Toast.LENGTH_LONG).show();
-                }
+        if (requestCode == REQUEST_TAKE_PHOTO) {
+            if (resultCode == RESULT_OK) {
+                imgAddPhoto.setImageURI(photoURI);
+            } else if (resultCode == RESULT_CANCELED) {
+                Toast.makeText(this, "사진 선택 취소", Toast.LENGTH_LONG).show();
             }
+        }
         // 앨범에서 이미지 가져오는 경우
         if (requestCode == PICK_IMAGE_FROM_ALBUM) {
             if (resultCode == RESULT_OK) {
@@ -238,10 +243,9 @@ public class WritePostActivity extends AppCompatActivity {
 
     private void uploadFirebase() {
         Uri contentUri;
-        if(camera){
+        if (camera) {
             contentUri = Uri.fromFile(new File(mCurrentPhotoPath));
-        }
-        else{
+        } else {
             File file = new File(photoUrl);
             contentUri = Uri.fromFile(file);
         }
@@ -303,92 +307,26 @@ public class WritePostActivity extends AppCompatActivity {
                 });
     }
 
-    private void settingPlantList(){
-        plantList.add("몬스테라 델리시오사");
-        plantList.add("올리브");
-        plantList.add("몬스테라 아단소");
-        plantList.add("블루스타 고사리");
-        plantList.add("몬스테라 알보 바리에가타");
-        plantList.add("피쉬본 선인장");
-        plantList.add("스투키");
-        plantList.add("테이블 야자");
-        plantList.add("칼라디움");
-        plantList.add("은엽 아카시아");
-        plantList.add("산세베리아 문샤인");
-        plantList.add("보스턴 고사리");
-        plantList.add("뱅갈 고무나무");
-        plantList.add("스파티필름");
-        plantList.add("로즈마리");
-        plantList.add("아레카야자");
-        plantList.add("유칼립투스 폴리안");
-        plantList.add("마오리 소포라");
-        plantList.add("스킨답서스");
-        plantList.add("필로덴드론 버킨");
-        plantList.add("스위트 바질");
-        plantList.add("금전수");
-        plantList.add("칼라데아 오르비폴리아");
-        plantList.add("헤데라(아이비)");
-        plantList.add("필로덴드론 콩고");
-        plantList.add("멜라니 고무나무");
-        plantList.add("아스파라거스 나누스");
-        plantList.add("세네시오 칸디칸스(엔젤윙)");
-        plantList.add("홍콩 야자");
-        plantList.add("알로카시아 오도라");
-        plantList.add("유칼립투스 구니");
-        plantList.add("목마가렛");
-        plantList.add("알로카시아 프라이덱");
-        plantList.add("호주매화(마누카)");
-        plantList.add("수박 페페로미아");
-        plantList.add("호야 카르노사(무늬 호야)");
-        plantList.add("여인초");
-        plantList.add("싱고니움");
-        plantList.add("유카");
-        plantList.add("켄차 야자");
-        plantList.add("극락조화");
-        plantList.add("율마(월마)");
-        plantList.add("원숭이꼬리 선인장");
-        plantList.add("필로덴드론 셀로움");
-        plantList.add("필레아 페페로미오데스");
-        plantList.add("해피트리");
-        plantList.add("개운죽");
-        plantList.add("애니시다");
-        plantList.add("사계귤(유주나무)");
-        plantList.add("코로키아");
-        plantList.add("떡갈잎 고무나무");
-        plantList.add("브레이니아 니보사(소코라코)");
-        plantList.add("박쥐란");
-        plantList.add("알로카시아 아마조니카");
-        plantList.add("파키라");
-        plantList.add("드라세나 드라코(용혈수)");
-        plantList.add("오렌지 자스민");
-        plantList.add("백묘국");
-        plantList.add("동백나무");
-        plantList.add("접란(클로로피텀)");
-        plantList.add("산세베리아");
-        plantList.add("용신목");
-        plantList.add("드라세나 마지나타");
-        plantList.add("라벤더");
-        plantList.add("립살리스 트리고나");
-        plantList.add("다바나 고사리");
-        plantList.add("인도 고무나무");
-        plantList.add("관음죽");
-        plantList.add("아라우카리아");
-        plantList.add("마란타 레우코네우라");
-        plantList.add("페퍼민트");
-        plantList.add("아비스");
-        plantList.add("장미허브");
-        plantList.add("알로에 베라");
-        plantList.add("마삭줄");
-        plantList.add("장미");
-        plantList.add("티트리");
-        plantList.add("아이비");
-        plantList.add("석송");
-        plantList.add("선인장");
-        plantList.add("마리모");
-        plantList.add("프리지아");
-        plantList.add("카네이션");
-        plantList.add("체리 세이지");
-        plantList.add("녹탑");
+    /**
+     * 출처: https://www.ibric.org/species/plant/plantlist.php , https://www.fuleaf.com/plants
+     * https://www.convertcsv.com/html-table-to-csv.htm 를 사용하여 가공
+     * asset 폴더에 위치함
+     */
+    private void settingPlantList() {
+
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(getAssets().open("plantdic.csv")));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                // 번호,이름,영어이름,?이름
+                String name = line.split(",")[1].replace("\"", "");
+                plantList.add(name);
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } finally {
+
+        }
     }
 }
 

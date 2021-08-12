@@ -1,7 +1,11 @@
 package kr.sswu.whydomyplantsdie.Fragment;
 
+import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -21,7 +25,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.LinearLayoutCompat;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.loader.content.CursorLoader;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -32,6 +39,7 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
+import com.facebook.login.LoginManager;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -51,14 +59,17 @@ import java.util.ArrayList;
 import kr.sswu.whydomyplantsdie.Login.LoginActivity;
 import kr.sswu.whydomyplantsdie.Model.ContentDTO;
 import kr.sswu.whydomyplantsdie.R;
+import kr.sswu.whydomyplantsdie.WritePostActivity;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
+import static android.widget.Toast.LENGTH_SHORT;
 import static com.facebook.FacebookSdk.getApplicationContext;
 
 public class SettingFragment extends Fragment {
 
     private final String TAG = "Setting";
+    private Context mContext;
     private final int PICK_IMAGE_FROM_ALBUM = 1;
     private ImageView setting;
     private ImageView profileImage;
@@ -92,6 +103,37 @@ public class SettingFragment extends Fragment {
         String arr[] = user.getEmail().split("@");
         userId.setText(arr[0]);
 
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("회원탈퇴");
+        builder.setMessage("정말 탈퇴하시겠습니까?");
+        builder.setIcon(R.drawable.icon_delete_user);
+        builder.setNegativeButton("예", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                deleteUserInfo();
+                user.delete();
+                firebaseAuth.signOut();
+                LoginManager.getInstance().logOut();
+                Intent intent = new Intent(getContext(), LoginActivity.class);
+                startActivity(intent);
+            }
+        });
+        builder.setPositiveButton("아니요", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+            }
+        });
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(getActivity(),Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
+                    && ContextCompat.checkSelfPermission(getActivity(),Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG, "권한 설정 완료");
+            } else {
+                Log.d(TAG, "권한 설정 요청");
+                requestPermissions( new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+            }
+        }
+
         LayoutInflater layoutInflater = (LayoutInflater) requireActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View view = layoutInflater.inflate(R.layout.bottomsheet_setting, null, false);
         final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(getContext());
@@ -105,6 +147,7 @@ public class SettingFragment extends Fragment {
                 view.findViewById(R.id.tv_edit).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+
                         Intent intent = new Intent();
                         intent.setAction(Intent.ACTION_PICK);
                         intent.setType("image/*");
@@ -125,11 +168,11 @@ public class SettingFragment extends Fragment {
                     }
                 });
 
-                view.findViewById(R.id.tv_help).setOnClickListener(new View.OnClickListener() {
+                view.findViewById(R.id.tv_out).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        // 앱 소개 넣기
-
+                       AlertDialog dialog = builder.create();
+                       dialog.show();
                         bottomSheetDialog.dismiss();
                     }
                 });
@@ -191,12 +234,12 @@ public class SettingFragment extends Fragment {
                 profileImagePath = dataSnapshot.getValue(String.class);
 
                 if (profileImagePath == null) {
-                    Glide.with(getContext())
+                    Glide.with(mContext)
                             .load(R.drawable.icon_profile)
                             .apply(new RequestOptions().circleCrop())
                             .into(profileImage);
                 } else {
-                    Glide.with(getContext())
+                    Glide.with(mContext)
                             .load(profileImagePath)
                             .addListener(new RequestListener<Drawable>() {
                                 @Override
@@ -315,5 +358,36 @@ public class SettingFragment extends Fragment {
                 this.imageView = imageView;
             }
         }
+    }
+
+    private void deleteUserInfo() {
+        firebaseStorage.getReference().child("profileImage").child(user.getUid()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d(TAG, "delete storage folder");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                // 아직 firebase storage에서 folder 삭제방법은 없음.
+                Log.d(TAG, "cannot delete storage folder  " + e.toString() );
+            }
+        });
+
+        firebaseDatabase.getReference().child("users").child(user.getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+            }
+        });
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        mContext = context;
     }
 }
