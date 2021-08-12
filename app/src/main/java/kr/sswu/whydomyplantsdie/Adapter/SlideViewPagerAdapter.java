@@ -115,7 +115,7 @@ public class SlideViewPagerAdapter extends PagerAdapter {
 
             case 5:
                 background.setImageResource(R.drawable.backdeepgreen);
-                tutorialimage.setImageResource(R.drawable.tutorial_feed);
+                tutorialimage.setImageResource(R.drawable.tutorial_mbti);
                 back.setVisibility(View.GONE);
                 next.setVisibility(View.VISIBLE);
                 break;
