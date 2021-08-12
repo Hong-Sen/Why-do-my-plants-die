@@ -36,11 +36,11 @@
         </RelativeLayout>
     </androidx.appcompat.widget.Toolbar>
 
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="8">
+        android:layout_weight="8"
+        android:layout_marginBottom="30dp">
 
         <ImageView
             android:id="@+id/alarm_img_photo"
@@ -72,7 +72,6 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginTop="13dp"
             android:background="@color/layoutGreen">
 
             <ImageView
@@ -125,6 +124,7 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginTop="15dp"
+            android:layout_marginBottom="20dp"
             android:background="@color/layoutGreen">
 
             <ImageView

@@ -40,7 +40,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="식물 이름"
-                    android:layout_marginTop="7dp"
+                    android:layout_marginTop="9dp"
                     android:textColor="@color/deepGreen"
                     android:textStyle="bold"
                     android:textSize="16sp" />
@@ -49,11 +49,11 @@
                     android:id="@+id/itemAlarm_heart"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="6dp"
                     android:textColor="@color/greyDark"
                     android:text="입양 날짜"
                     android:textStyle="italic"
-                    android:textSize="13sp" />
+                    android:textSize="11sp" />
 
                 <TextView
                     android:id="@+id/itemAlarm_cycle"
@@ -62,7 +62,7 @@
                     android:textColor="@color/greyDark"
                     android:text="물주기"
                     android:textStyle="italic"
-                    android:textSize="13sp" />
+                    android:textSize="11sp" />
 
             </LinearLayout>
 
