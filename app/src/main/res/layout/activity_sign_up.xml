@@ -1,58 +1,99 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <androidx.appcompat.widget.Toolbar
+        android:layout_width="match_parent"
+        android:layout_height="?android:actionBarSize"
+        app:contentInsetStart="0dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/iv_close"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:src="@drawable/icon_close" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:text="회원가입"
+                android:textSize="20dp" />
+
+        </RelativeLayout>
+    </androidx.appcompat.widget.Toolbar>
+
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center"
+        android:layout_marginVertical="20dp"
+        android:src="@drawable/icon_logo" />
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="회원가입"
-        android:textSize="30dp"
-        android:layout_marginTop="100dp"/>
+        android:text="회원가입하시고\n 우리집 식물을 지키세요!"
+        android:textColor="@color/black"
+        android:textSize="30dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_margin="25dp">
+        android:layout_margin="25dp"
+        android:orientation="vertical">
 
         <EditText
             android:id="@+id/edt_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_marginBottom="20dp"
+            android:drawableLeft="@drawable/icon_email"
             android:ems="10"
-            android:hint="E-mail"
+            android:hint="  E-mail"
             android:inputType="textEmailAddress"
-            android:textColor="@android:color/black"
-            android:layout_marginBottom="20dp"/>
+            android:textColor="@android:color/black" />
         ​
+
         <EditText
             android:id="@+id/edt_passWord"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_marginBottom="20dp"
+            android:drawableLeft="@drawable/icon_password"
             android:ems="10"
-            android:hint="Password"
+            android:hint="  Password"
             android:inputType="textPassword"
-            android:textColor="@android:color/black"
-            android:layout_marginBottom="20dp"/>
-        ​
+            android:textColor="@android:color/black" />
+
         <EditText
             android:id="@+id/edt_check_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_marginBottom="20dp"
+            android:layout_weight="4"
+            android:drawableLeft="@drawable/icon_password"
             android:ems="10"
-            android:hint="Check password"
+            android:hint="  Check password"
             android:inputType="textPassword"
-            android:textColor="@android:color/black"
-            android:layout_marginBottom="20dp" />
-        ​
+            android:textColor="@android:color/black" />​
+
         <Button
             android:id="@+id/btn_join"
             android:layout_width="wrap_content"

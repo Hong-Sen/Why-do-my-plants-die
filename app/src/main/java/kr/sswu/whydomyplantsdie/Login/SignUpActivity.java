@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -34,6 +35,7 @@ public class SignUpActivity extends AppCompatActivity {
     private EditText editTextPassword;
     private EditText editTextPassword2;
     private Button buttonJoin;
+    private ImageView close;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +48,14 @@ public class SignUpActivity extends AppCompatActivity {
         editTextPassword = (EditText) findViewById(R.id.edt_passWord);
         editTextPassword2 = (EditText) findViewById(R.id.edt_check_password);
         buttonJoin = (Button) findViewById(R.id.btn_join);
+        close = (ImageView)findViewById(R.id.iv_close);
+
+        close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
         buttonJoin.setOnClickListener(new View.OnClickListener() {
             @Override
