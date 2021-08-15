@@ -1,8 +1,7 @@
 package kr.sswu.whydomyplantsdie.Login;
 
-import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,19 +12,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
-
-import java.io.File;
 
 import kr.sswu.whydomyplantsdie.R;
 
@@ -33,7 +23,7 @@ public class SignUpActivity extends AppCompatActivity {
     private FirebaseAuth firebaseAuth;
     private EditText editTextEmail;
     private EditText editTextPassword;
-    private EditText editTextPassword2;
+    private EditText editTextPasswordConfirm;
     private Button buttonJoin;
     private ImageView close;
 
@@ -46,9 +36,9 @@ public class SignUpActivity extends AppCompatActivity {
 
         editTextEmail = (EditText) findViewById(R.id.edt_email);
         editTextPassword = (EditText) findViewById(R.id.edt_passWord);
-        editTextPassword2 = (EditText) findViewById(R.id.edt_check_password);
+        editTextPasswordConfirm = (EditText) findViewById(R.id.edt_check_password);
         buttonJoin = (Button) findViewById(R.id.btn_join);
-        close = (ImageView)findViewById(R.id.iv_close);
+        close = (ImageView) findViewById(R.id.iv_close);
 
         close.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -60,11 +50,11 @@ public class SignUpActivity extends AppCompatActivity {
         buttonJoin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!editTextEmail.getText().toString().equals("") && !editTextPassword.getText().toString().equals("")){
-                    createUser(editTextEmail.getText().toString(), editTextPassword.getText().toString(), editTextPassword2.getText().toString());
-                }
-                else{
-                    Toast.makeText(SignUpActivity.this, "계정과 비밀번호를 입력하세요.", Toast.LENGTH_LONG).show();
+                if (isInputValid(
+                        editTextEmail.getText().toString(),
+                        editTextPassword.getText().toString(),
+                        editTextPasswordConfirm.getText().toString())) {
+                    createUser(editTextEmail.getText().toString(), editTextPassword.getText().toString());
                 }
             }
         });
@@ -76,7 +66,24 @@ public class SignUpActivity extends AppCompatActivity {
         FirebaseUser user = firebaseAuth.getCurrentUser();
     }
 
-    private void createUser(String email, String password, String password2) {
+    private Boolean isInputValid(String email, String password, String password2) {
+
+        if (email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            Toast.makeText(SignUpActivity.this, "이메일 형식이 아닙니다.", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (password.length() < 6) {
+            Toast.makeText(SignUpActivity.this, "비밀번호는 6자리 이상 입력해주세요.", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (!(password.equals(password2))) {
+            Toast.makeText(SignUpActivity.this, "비밀번호가 일치하지 않습니다.", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
+
+    private void createUser(String email, String password) {
         firebaseAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -86,16 +93,7 @@ public class SignUpActivity extends AppCompatActivity {
                             Toast.makeText(SignUpActivity.this, "회원가입 성공", Toast.LENGTH_SHORT).show();
                             finish();
                         } else {
-                            if(email.indexOf('@') == -1 || email.indexOf("com") == -1){
-                                Toast.makeText(SignUpActivity.this, "이메일 형식이 아닙니다.", Toast.LENGTH_SHORT).show();
-                            }
-                            else if(password.length() < 6){
-                                Toast.makeText(SignUpActivity.this, "비밀번호는 6자리 이상 입력해주세요.", Toast.LENGTH_SHORT).show();
-                            }
-                            else if(!(password.equals(password2))){
-                                Toast.makeText(SignUpActivity.this, "비밀번호가 틀렸습니다.", Toast.LENGTH_SHORT).show();
-                            }
-                            //Log.d("not success login", "createUserWithEmail:failure", task.getException());
+                            Toast.makeText(SignUpActivity.this, "이미 가입된 이메일입니다.", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
