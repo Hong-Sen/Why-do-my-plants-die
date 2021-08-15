@@ -1,5 +1,8 @@
 package kr.sswu.whydomyplantsdie.Model;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class AlarmModel {
     public String uid;
     public String userid;
@@ -8,6 +11,7 @@ public class AlarmModel {
     public String plantName;
     public String heart;
     public String cycle;
+    public Map<String, Boolean> btnOnOffState = new HashMap<>();
 
     public void setUid(String uid) {
         this.uid = uid;
