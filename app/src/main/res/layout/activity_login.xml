@@ -52,7 +52,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="25dp"
                     android:drawableLeft="@drawable/icon_email"
-                    android:hint="  email"
+                    android:hint="email"
+                    android:drawablePadding="10dp"
                     android:inputType="textEmailAddress"
                     android:paddingLeft="10dp" />
 
@@ -63,7 +64,8 @@
                     android:layout_marginHorizontal="25dp"
                     android:layout_marginTop="20dp"
                     android:drawableLeft="@drawable/icon_password"
-                    android:hint="  password"
+                    android:hint="password"
+                    android:drawablePadding="10dp"
                     android:inputType="textPassword"
                     android:paddingLeft="10dp" />
 

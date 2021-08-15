@@ -63,8 +63,9 @@
             android:layout_gravity="center"
             android:layout_marginBottom="20dp"
             android:drawableLeft="@drawable/icon_email"
+            android:drawablePadding="10dp"
             android:ems="10"
-            android:hint="  E-mail"
+            android:hint="E-mail"
             android:inputType="textEmailAddress"
             android:textColor="@android:color/black" />
         ​
@@ -75,9 +76,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginBottom="20dp"
+            android:drawablePadding="10dp"
             android:drawableLeft="@drawable/icon_password"
             android:ems="10"
-            android:hint="  Password"
+            android:hint="Password"
             android:inputType="textPassword"
             android:textColor="@android:color/black" />
 
@@ -87,10 +89,11 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginBottom="20dp"
+            android:drawablePadding="10dp"
             android:layout_weight="4"
             android:drawableLeft="@drawable/icon_password"
             android:ems="10"
-            android:hint="  Check password"
+            android:hint="Check password"
             android:inputType="textPassword"
             android:textColor="@android:color/black" />​
 
