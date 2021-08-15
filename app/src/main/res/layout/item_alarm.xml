@@ -29,7 +29,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="25dp"
                 android:layout_marginTop="30dp"
-                android:layout_marginRight="30dp"
                 android:layout_marginBottom="30dp"
                 android:layout_toLeftOf="@+id/itemAlarm_btnOnoff"
                 android:layout_toRightOf="@+id/itemAlarm_image"
@@ -45,35 +44,68 @@
                     android:textStyle="bold"
                     android:textSize="16sp" />
 
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp">
+
+                <ImageView
+                    android:id="@+id/itemAlarm_image_heart"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/icon_after_like">
+                </ImageView>
+
                 <TextView
                     android:id="@+id/itemAlarm_heart"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
+                    android:layout_marginLeft="1dp"
+                    android:layout_toRightOf="@+id/itemAlarm_image_heart"
                     android:textColor="@color/greyDark"
                     android:text="입양 날짜"
                     android:textStyle="italic"
-                    android:textSize="11sp" />
+                    android:textSize="12sp" />
 
-                <TextView
-                    android:id="@+id/itemAlarm_cycle"
+                </RelativeLayout>
+
+                <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/greyDark"
-                    android:text="물주기"
-                    android:textStyle="italic"
-                    android:textSize="11sp" />
+                    android:layout_marginTop="3dp">
+
+                    <ImageView
+                        android:id="@+id/itemAlarm_image_cycle"
+                        android:layout_width="10dp"
+                        android:layout_height="10dp"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/icon_water_color">
+                    </ImageView>
+
+                    <TextView
+                        android:id="@+id/itemAlarm_cycle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="1dp"
+                        android:layout_toRightOf="@+id/itemAlarm_image_cycle"
+                        android:textColor="@color/greyDark"
+                        android:text="물주기"
+                        android:textStyle="italic"
+                        android:textSize="12sp" />
+
+                </RelativeLayout>
 
             </LinearLayout>
 
-            <Switch
+            <ImageView
                 android:id="@+id/itemAlarm_btnOnoff"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="55dp"
+                android:layout_height="25dp"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
                 android:layout_marginRight="15dp"
-                tools:ignore="UseSwitchCompatOrMaterialXml" />
+                android:src="@drawable/icon_switch_off"/>
         </RelativeLayout>
     </LinearLayout>
 </layout>

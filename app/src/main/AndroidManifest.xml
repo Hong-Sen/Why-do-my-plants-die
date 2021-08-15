@@ -41,9 +41,11 @@
         android:theme="@style/Theme.WhyDoMyPlantsDie"
         android:usesCleartextTraffic="true">
 
+        <!--
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/app_notification_icon" />
+        -->
 
         <activity android:name=".SplashActivity">
             <intent-filter>

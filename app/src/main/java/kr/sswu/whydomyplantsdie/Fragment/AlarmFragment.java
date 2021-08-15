@@ -2,15 +2,12 @@ package kr.sswu.whydomyplantsdie.Fragment;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
-import android.widget.Switch;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -51,13 +48,10 @@ import kr.sswu.whydomyplantsdie.Model.AlarmModel;
 import kr.sswu.whydomyplantsdie.R;
 import kr.sswu.whydomyplantsdie.databinding.ItemAlarmBinding;
 
-import static android.content.Context.MODE_PRIVATE;
 import static android.widget.Toast.LENGTH_SHORT;
 
 public class AlarmFragment extends Fragment {
 
-    public static final String ex = "btnOnOff";
-    SharedPreferences sharedPreferences;
     private String uid;
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
@@ -67,7 +61,6 @@ public class AlarmFragment extends Fragment {
     private FirebaseStorage firebaseStorage;
     private FirebaseUser user;
     private FloatingActionButton btnAddAlarm;
-    private Switch btnOnOff;
     private View view;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -149,7 +142,6 @@ public class AlarmFragment extends Fragment {
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_alarm, parent, false);
-            btnOnOff = view.findViewById(R.id.itemAlarm_btnOnoff);
             return new CustomViewHolder(view);
         }
 
@@ -170,107 +162,89 @@ public class AlarmFragment extends Fragment {
 
 
             //fcm 토픽 제어
-            sharedPreferences = getActivity().getSharedPreferences(" ", MODE_PRIVATE);
-            final SharedPreferences.Editor editor = sharedPreferences.edit();
-            btnOnOff.setChecked(sharedPreferences.getBoolean(ex, true));
             FirebaseMessaging.getInstance().subscribeToTopic("90");
-            btnOnOff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            binding.itemAlarmBtnOnoff.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if (isChecked) {
-                        switch (alarmList.get(position).getCycle()) {
-                            case "물주기":
-                                break;
-                            case "1일":
-                                editor.putBoolean(ex, true); // value to store
-                                FirebaseMessaging.getInstance().subscribeToTopic("1");
-                                break;
-                            case "2일":
-                                editor.putBoolean(ex, true); // value to store
-                                FirebaseMessaging.getInstance().subscribeToTopic("2");
-                                break;
-                            case "3일":
-                                editor.putBoolean(ex, true); // value to store
-                                FirebaseMessaging.getInstance().subscribeToTopic("3");
-                                break;
-                            case "5일":
-                                editor.putBoolean(ex, true); // value to store
-                                FirebaseMessaging.getInstance().subscribeToTopic("5");
-                                break;
-                            case "10일":
-                                editor.putBoolean(ex, true); // value to store
-                                FirebaseMessaging.getInstance().subscribeToTopic("10");
-                                break;
-                            case "15일":
-                                editor.putBoolean(ex, true); // value to store
-                                FirebaseMessaging.getInstance().subscribeToTopic("15");
-                                break;
-                            case "20일":
-                                editor.putBoolean(ex, true); // value to store
-                                FirebaseMessaging.getInstance().subscribeToTopic("20");
-                                break;
-                            case "한 달":
-                                editor.putBoolean(ex, true); // value to store
-                                FirebaseMessaging.getInstance().subscribeToTopic("30");
-                                break;
-                            case "두 달":
-                                editor.putBoolean(ex, true); // value to store
-                                FirebaseMessaging.getInstance().subscribeToTopic("60");
-                                break;
-                            case "세 달":
-                                editor.putBoolean(ex, true); // value to store
-                                FirebaseMessaging.getInstance().subscribeToTopic("90");
-                                break;
-                        }
-                    } else {
-                        switch (alarmList.get(position).getCycle()) {
-                            case "물주기":
-                                break;
-                            case "1일":
-                                editor.putBoolean(ex, false); // value to store
-                                FirebaseMessaging.getInstance().unsubscribeFromTopic("1");
-                                break;
-                            case "2일":
-                                editor.putBoolean(ex, false); // value to store
-                                FirebaseMessaging.getInstance().unsubscribeFromTopic("2");
-                                break;
-                            case "3일":
-                                editor.putBoolean(ex, false); // value to store
-                                FirebaseMessaging.getInstance().unsubscribeFromTopic("3");
-                                break;
-                            case "5일":
-                                editor.putBoolean(ex, false); // value to store
-                                FirebaseMessaging.getInstance().unsubscribeFromTopic("5");
-                                break;
-                            case "10일":
-                                editor.putBoolean(ex, false); // value to store
-                                FirebaseMessaging.getInstance().unsubscribeFromTopic("10");
-                                break;
-                            case "15일":
-                                editor.putBoolean(ex, false); // value to store
-                                FirebaseMessaging.getInstance().unsubscribeFromTopic("15");
-                                break;
-                            case "20일":
-                                editor.putBoolean(ex, false); // value to store
-                                FirebaseMessaging.getInstance().unsubscribeFromTopic("20");
-                                break;
-                            case "한 달":
-                                editor.putBoolean(ex, false); // value to store
-                                FirebaseMessaging.getInstance().unsubscribeFromTopic("30");
-                                break;
-                            case "두 달":
-                                editor.putBoolean(ex, false); // value to store
-                                FirebaseMessaging.getInstance().unsubscribeFromTopic("60");
-                                break;
-                            case "세 달":
-                                editor.putBoolean(ex, false); // value to store
-                                FirebaseMessaging.getInstance().unsubscribeFromTopic("90");
-                                break;
-                        }
-                    }
-                    editor.apply();
+                public void onClick(View v) {
+                    pushOnOff(position);
                 }
             });
+            if (alarmList.get(position).btnOnOffState.containsKey(user.getUid())) {
+                binding.itemAlarmBtnOnoff.setImageResource(R.drawable.icon_switch_on);
+
+                switch (alarmList.get(position).getCycle()) {
+                    case "물주기":
+                        break;
+                    case "1일":
+                        FirebaseMessaging.getInstance().subscribeToTopic("1");
+                        break;
+                    case "2일":
+                        FirebaseMessaging.getInstance().subscribeToTopic("2");
+                        break;
+                    case "3일":
+                        FirebaseMessaging.getInstance().subscribeToTopic("3");
+                        break;
+                    case "5일":
+                        FirebaseMessaging.getInstance().subscribeToTopic("5");
+                        break;
+                    case "10일":
+                        FirebaseMessaging.getInstance().subscribeToTopic("10");
+                        break;
+                    case "15일":
+                        FirebaseMessaging.getInstance().subscribeToTopic("15");
+                        break;
+                    case "20일":
+                        FirebaseMessaging.getInstance().subscribeToTopic("20");
+                        break;
+                    case "한 달":
+                        FirebaseMessaging.getInstance().subscribeToTopic("30");
+                        break;
+                    case "두 달":
+                        FirebaseMessaging.getInstance().subscribeToTopic("60");
+                        break;
+                    case "세 달":
+                        FirebaseMessaging.getInstance().subscribeToTopic("90");
+                        break;
+                }
+            } else {
+                binding.itemAlarmBtnOnoff.setImageResource(R.drawable.icon_switch_off);
+
+                switch (alarmList.get(position).getCycle()) {
+                    case "물주기":
+                        break;
+                    case "1일":
+                        FirebaseMessaging.getInstance().unsubscribeFromTopic("1");
+                        break;
+                    case "2일":
+                        FirebaseMessaging.getInstance().unsubscribeFromTopic("2");
+                        break;
+                    case "3일":
+                        FirebaseMessaging.getInstance().unsubscribeFromTopic("3");
+                        break;
+                    case "5일":
+                        FirebaseMessaging.getInstance().unsubscribeFromTopic("5");
+                        break;
+                    case "10일":
+                        FirebaseMessaging.getInstance().unsubscribeFromTopic("10");
+                        break;
+                    case "15일":
+                        FirebaseMessaging.getInstance().unsubscribeFromTopic("15");
+                        break;
+                    case "20일":
+                        FirebaseMessaging.getInstance().unsubscribeFromTopic("20");
+                        break;
+                    case "한 달":
+                        FirebaseMessaging.getInstance().unsubscribeFromTopic("30");
+                        break;
+                    case "두 달":
+                        FirebaseMessaging.getInstance().unsubscribeFromTopic("60");
+                        break;
+                    case "세 달":
+                        FirebaseMessaging.getInstance().unsubscribeFromTopic("90");
+                        break;
+                }
+            }
+
 
             // 삭제 bottomsheet
             LayoutInflater inflater = (LayoutInflater) requireActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -321,8 +295,33 @@ public class AlarmFragment extends Fragment {
                     Toast.makeText(getContext(), "삭제 실패", LENGTH_SHORT).show();
                 }
             });
+        }
 
+        private void pushOnOff (int position) {
+            FirebaseDatabase.getInstance().getReference("alarm").child(uidList.get(position))
+                    .runTransaction(new Transaction.Handler() {
+                        @NonNull
+                        @Override
+                        public Transaction.Result doTransaction(@NonNull MutableData currentData) {
+                            AlarmModel alarmModel = currentData.getValue(AlarmModel.class);
+                            if (alarmModel == null) {
+                                return Transaction.success(currentData);
+                            }
+                            if (alarmModel.btnOnOffState.containsKey(uid)) {
+                                alarmModel.btnOnOffState.remove(uid);
+                            } else {
+                                alarmModel.btnOnOffState.put(uid, true);
 
+                            }
+                            currentData.setValue(alarmModel);
+                            return Transaction.success(currentData);
+                        }
+
+                        @Override
+                        public void onComplete(@Nullable DatabaseError error, boolean committed, @Nullable DataSnapshot currentData) {
+
+                        }
+                    });
         }
 
         @Override
