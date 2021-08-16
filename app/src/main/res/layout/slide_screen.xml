@@ -23,14 +23,6 @@
          app:srcCompat="@drawable/tutorial_image1_2" />
 
      <ImageView
-         android:id="@+id/ic_back"
-         android:layout_width="55dp"
-         android:layout_height="51dp"
-         android:layout_marginTop="300dp"
-         app:srcCompat="@drawable/ic_back"
-         tools:ignore="VectorDrawableCompat" />
-
-     <ImageView
          android:id="@+id/ic_next"
          android:layout_width="wrap_content"
          android:layout_height="wrap_content"

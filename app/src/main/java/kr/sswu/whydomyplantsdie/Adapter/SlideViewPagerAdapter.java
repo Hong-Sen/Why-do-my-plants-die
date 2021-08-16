@@ -45,7 +45,7 @@ public class SlideViewPagerAdapter extends PagerAdapter {
 
 
         ImageView next=view.findViewById(R.id.ic_next);
-        ImageView back=view.findViewById(R.id.ic_back);
+
 
         Button btnGetStarted=view.findViewById(R.id.btnGetStarted);
         btnGetStarted.setOnClickListener(new View.OnClickListener() {
@@ -63,12 +63,7 @@ public class SlideViewPagerAdapter extends PagerAdapter {
             }
         });
 
-        back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SlideActivity.viewPager.setCurrentItem(position-1);
-            }
-        });
+
 
         switch (position)
         {
@@ -76,7 +71,7 @@ public class SlideViewPagerAdapter extends PagerAdapter {
 
                 background.setImageResource(R.drawable.backgreen);
                 tutorialimage.setImageResource(R.drawable.tutorial_image1_3);
-                back.setVisibility(View.GONE);
+
                 next.setVisibility(View.VISIBLE);
                 break;
 
@@ -85,7 +80,7 @@ public class SlideViewPagerAdapter extends PagerAdapter {
 
                 background.setImageResource(R.drawable.backgreen);
                 tutorialimage.setImageResource(R.drawable.tutorial_image_2);
-                back.setVisibility(View.GONE);
+
                 next.setVisibility(View.VISIBLE);
                 break;
 
@@ -93,14 +88,14 @@ public class SlideViewPagerAdapter extends PagerAdapter {
             case 2:
                 background.setImageResource(R.drawable.backdeepgreen);
                 tutorialimage.setImageResource(R.drawable.tutorial_alarm);
-                back.setVisibility(View.GONE);
+
                 next.setVisibility(View.VISIBLE);
                 break;
 
             case 3:
                 background.setImageResource(R.drawable.backdeepgreen);
                 tutorialimage.setImageResource(R.drawable.tutorial_search);
-                back.setVisibility(View.GONE);
+
                 next.setVisibility(View.VISIBLE);
                 break;
 
@@ -108,7 +103,7 @@ public class SlideViewPagerAdapter extends PagerAdapter {
             case 4:
                 background.setImageResource(R.drawable.backdeepgreen);
                 tutorialimage.setImageResource(R.drawable.tutorial_feed);
-                back.setVisibility(View.GONE);
+
                 next.setVisibility(View.VISIBLE);
                 break;
 
@@ -116,7 +111,7 @@ public class SlideViewPagerAdapter extends PagerAdapter {
             case 5:
                 background.setImageResource(R.drawable.backdeepgreen);
                 tutorialimage.setImageResource(R.drawable.tutorial_mbti);
-                back.setVisibility(View.GONE);
+
                 next.setVisibility(View.VISIBLE);
                 break;
 
