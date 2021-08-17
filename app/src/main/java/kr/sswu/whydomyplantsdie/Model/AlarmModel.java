@@ -11,7 +11,7 @@ public class AlarmModel {
     public String plantName;
     public String heart;
     public String cycle;
-    public Map<String, Boolean> btnOnOffState = new HashMap<>();
+    public int pushOnOff = 0;
 
     public void setUid(String uid) {
         this.uid = uid;

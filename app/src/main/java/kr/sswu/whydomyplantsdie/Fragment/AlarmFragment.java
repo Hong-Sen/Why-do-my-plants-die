@@ -147,6 +147,7 @@ public class AlarmFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+            final int finalPosition = position;
             final ItemAlarmBinding binding = ((CustomViewHolder) holder).getBinding();
 
             RequestOptions requestOptions = new RequestOptions();
@@ -162,88 +163,103 @@ public class AlarmFragment extends Fragment {
 
 
             //fcm 토픽 제어
-            FirebaseMessaging.getInstance().subscribeToTopic("90");
+            //FirebaseMessaging.getInstance().subscribeToTopic("90");
             binding.itemAlarmBtnOnoff.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    pushOnOff(position);
+                    pushOnOff(finalPosition);
                 }
             });
-            if (alarmList.get(position).btnOnOffState.containsKey(user.getUid())) {
+            if (alarmList.get(position).pushOnOff == 1) {
                 binding.itemAlarmBtnOnoff.setImageResource(R.drawable.icon_switch_on);
 
                 switch (alarmList.get(position).getCycle()) {
                     case "물주기":
                         break;
                     case "1일":
-                        FirebaseMessaging.getInstance().subscribeToTopic("1");
+                        FirebaseMessaging.getInstance().subscribeToTopic("day1");
                         break;
                     case "2일":
-                        FirebaseMessaging.getInstance().subscribeToTopic("2");
+                        FirebaseMessaging.getInstance().subscribeToTopic("day2");
                         break;
                     case "3일":
-                        FirebaseMessaging.getInstance().subscribeToTopic("3");
+                        FirebaseMessaging.getInstance().subscribeToTopic("day3");
                         break;
                     case "5일":
-                        FirebaseMessaging.getInstance().subscribeToTopic("5");
+                        FirebaseMessaging.getInstance().subscribeToTopic("day5");
                         break;
                     case "10일":
-                        FirebaseMessaging.getInstance().subscribeToTopic("10");
+                        FirebaseMessaging.getInstance().subscribeToTopic("day10");
                         break;
                     case "15일":
-                        FirebaseMessaging.getInstance().subscribeToTopic("15");
+                        FirebaseMessaging.getInstance().subscribeToTopic("day15");
                         break;
                     case "20일":
-                        FirebaseMessaging.getInstance().subscribeToTopic("20");
+                        FirebaseMessaging.getInstance().subscribeToTopic("day20");
                         break;
                     case "한 달":
-                        FirebaseMessaging.getInstance().subscribeToTopic("30");
+                        FirebaseMessaging.getInstance().subscribeToTopic("day30");
                         break;
                     case "두 달":
-                        FirebaseMessaging.getInstance().subscribeToTopic("60");
+                        FirebaseMessaging.getInstance().subscribeToTopic("day60");
                         break;
                     case "세 달":
-                        FirebaseMessaging.getInstance().subscribeToTopic("90");
+                        FirebaseMessaging.getInstance().subscribeToTopic("day90");
                         break;
                 }
-            } else {
+            } else if (alarmList.get(position).pushOnOff == 0) {
                 binding.itemAlarmBtnOnoff.setImageResource(R.drawable.icon_switch_off);
 
                 switch (alarmList.get(position).getCycle()) {
                     case "물주기":
                         break;
                     case "1일":
-                        FirebaseMessaging.getInstance().unsubscribeFromTopic("1");
+                        FirebaseMessaging.getInstance().unsubscribeFromTopic("day1");
                         break;
                     case "2일":
-                        FirebaseMessaging.getInstance().unsubscribeFromTopic("2");
+                        FirebaseMessaging.getInstance().unsubscribeFromTopic("day2");
                         break;
                     case "3일":
-                        FirebaseMessaging.getInstance().unsubscribeFromTopic("3");
+                        FirebaseMessaging.getInstance().unsubscribeFromTopic("day3");
                         break;
                     case "5일":
-                        FirebaseMessaging.getInstance().unsubscribeFromTopic("5");
+                        FirebaseMessaging.getInstance().unsubscribeFromTopic("day5");
                         break;
                     case "10일":
-                        FirebaseMessaging.getInstance().unsubscribeFromTopic("10");
+                        FirebaseMessaging.getInstance().unsubscribeFromTopic("day10");
                         break;
                     case "15일":
-                        FirebaseMessaging.getInstance().unsubscribeFromTopic("15");
+                        FirebaseMessaging.getInstance().unsubscribeFromTopic("day15");
                         break;
                     case "20일":
-                        FirebaseMessaging.getInstance().unsubscribeFromTopic("20");
+                        FirebaseMessaging.getInstance().unsubscribeFromTopic("day20");
                         break;
                     case "한 달":
-                        FirebaseMessaging.getInstance().unsubscribeFromTopic("30");
+                        FirebaseMessaging.getInstance().unsubscribeFromTopic("day30");
                         break;
                     case "두 달":
-                        FirebaseMessaging.getInstance().unsubscribeFromTopic("60");
+                        FirebaseMessaging.getInstance().unsubscribeFromTopic("day60");
                         break;
                     case "세 달":
-                        FirebaseMessaging.getInstance().unsubscribeFromTopic("90");
+                        FirebaseMessaging.getInstance().unsubscribeFromTopic("day90");
                         break;
                 }
             }
+
+            //fcm cloud messaging token
+            FirebaseMessaging.getInstance().getToken()
+                    .addOnCompleteListener(new OnCompleteListener<String>() {
+                        @Override
+                        public void onComplete(@NonNull Task<String> task) {
+                            if (!task.isSuccessful()) {
+                                Log.w("FCM Log", "getInstanceId failed", task.getException());
+                                return;
+                            }
+                            String token = task.getResult();
+
+                            Log.d("FCM Log", "FCM 토큰: " + token);
+                        }
+                    });
 
 
             // 삭제 bottomsheet
@@ -298,6 +314,7 @@ public class AlarmFragment extends Fragment {
         }
 
         private void pushOnOff (int position) {
+            final int finalPosition = position;
             FirebaseDatabase.getInstance().getReference("alarm").child(uidList.get(position))
                     .runTransaction(new Transaction.Handler() {
                         @NonNull
@@ -307,11 +324,10 @@ public class AlarmFragment extends Fragment {
                             if (alarmModel == null) {
                                 return Transaction.success(currentData);
                             }
-                            if (alarmModel.btnOnOffState.containsKey(uid)) {
-                                alarmModel.btnOnOffState.remove(uid);
-                            } else {
-                                alarmModel.btnOnOffState.put(uid, true);
-
+                            if (alarmModel.pushOnOff == 0) {
+                                alarmModel.pushOnOff = alarmModel.pushOnOff + 1;
+                            } else if (alarmModel.pushOnOff == 1) {
+                                alarmModel.pushOnOff = alarmModel.pushOnOff - 1;
                             }
                             currentData.setValue(alarmModel);
                             return Transaction.success(currentData);
