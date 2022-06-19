@@ -7,13 +7,19 @@
 
 * 식물을 처음 키우는 사람들과 식물 키우기를 힘들어하는 사람들에게 도움을 주고자 제작한 앱입니다. 
 
+</br>
+
 ## 🖥️ 개발 환경
 * Android studio 4.1
 * Firebase
 * VS code
 
+</br>
+
 ## 🌿 기능
 * 데모 영상: <https://youtu.be/9HjS7o0w7ds>
+
+</br>
 
 * 튜토리얼   
 
